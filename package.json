@@ -1,0 +1,44 @@
+{
+  "name": "linquest",
+  "version": "0.1.0",
+  "description": "Remote Linq implementation with Jinqu infrastructure",
+  "main": "dist/index.js",
+  "keywords": [
+    "linq",
+    "query",
+    "ajax"
+  ],
+  "files": [
+    "dist",
+    "readme.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jin-qu/linquest"
+  },
+  "scripts": {
+    "test": "mocha --opts mocha.opts --reporter spec",
+    "cover": "nyc --reporter text-summary mocha --opts mocha.opts --reporter spec",
+    "coveralls": "nyc mocha --opts mocha.opts && nyc report --reporter=text-lcov --opts mocha.opts | coveralls",
+    "build": "tsc"
+  },
+  "author": "Umut Özel",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.1",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^2.2.46",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "coveralls": "^3.0.2",
+    "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.17.0",
+    "nyc": "^11.4.1",
+    "ts-node": "^7.0.0",
+    "tslint": "~5.6.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "jinqu": "^0.1.8"
+  }
+}
