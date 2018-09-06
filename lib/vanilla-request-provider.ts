@@ -6,14 +6,18 @@ export class VanillaRequestProvider implements IRequestProvider<AjaxOptions>, IA
 
     request<T>(params: QueryParameter[], options: AjaxOptions[]) {
         const o = (options || []).reduce(mergeAjaxOptions, this.defaultOptions);
-        o.params = (params ||  []).concat(o.params ||  []);
+        o.params = (params || []).concat(o.params || []);
 
         return this.ajax<T>(o);
     }
 
     ajax<T>(o: AjaxOptions) {
         var xhr = new XMLHttpRequest();
-        xhr.open(o.method || 'GET', o.url);
+
+        const params = o.params && o.params.map(p => `p.key=${encodeURIComponent(p.value)}`).join('&');
+        let url = `${o.url || ''}${params ? '?' + params : ''}`;
+
+        xhr.open(o.method || 'GET', url);
         xhr.timeout = o.timeout;
 
         if (o.headers) {
