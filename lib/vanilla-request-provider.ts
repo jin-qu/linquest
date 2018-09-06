@@ -13,7 +13,8 @@ export class VanillaRequestProvider implements IRequestProvider<AjaxOptions>, IA
 
     ajax<T>(o: AjaxOptions) {
         var xhr = new XMLHttpRequest();
-        xhr.open(o.method, o.url);
+        xhr.open(o.method || 'GET', o.url);
+        xhr.timeout = o.timeout;
 
         if (o.headers) {
             for (var p in o.headers) {
