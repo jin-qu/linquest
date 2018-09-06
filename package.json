@@ -39,6 +39,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "jinqu": "^0.1.8"
+    "jinqu": "^0.1.8",
+    "jokenizer": "^0.1.5"
   }
 }

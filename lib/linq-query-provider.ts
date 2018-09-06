@@ -70,7 +70,7 @@ function expToStr(exp: Expression, scopes: any[]): string {
             return `new [${aexp.items.map(e => expToStr(e, scopes)).join(', ')}]`;
         case ExpressionType.Binary:
             const bexp = exp as BinaryExpression;
-            return `${expToStr(bexp.left, scopes)} ${getBinaryOp(bexp.operator)} ${expToStr(bexp.right, scopes)}`;
+            return `${expToStr(bexp.left, scopes)} ${getBinaryOp(bexp.operator)} ${expToStr(bexp.right, scopes)}`;
         case ExpressionType.Member:
             const mexp = exp as MemberExpression;
             return `${expToStr(mexp.owner, scopes)}.${mexp.member.name}`;
@@ -81,7 +81,8 @@ function expToStr(exp: Expression, scopes: any[]): string {
             const fexp = exp as FuncExpression;
             const a = {};
             fexp.parameters.forEach(p => a[p] = readProp(p, scopes));
-            return expToStr(fexp.body, [a, ...scopes]);
+            const left = `(${fexp.parameters.join(', ')}) => `;
+            return left + expToStr(fexp.body, [a, ...scopes]);
         case ExpressionType.Call:
             const cexp = exp as CallExpression;
             return mapFunction(cexp, scopes);
@@ -94,8 +95,8 @@ function expToStr(exp: Expression, scopes: any[]): string {
 }
 
 function getBinaryOp(op: string) {
-    if ('===') return '==';
-    if ('!==') return '!=';
+    if (op === '===') return '==';
+    if (op === '!==') return '!=';
 
     return op;
 }
