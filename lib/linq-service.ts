@@ -5,11 +5,11 @@ import { LinqQuery } from "./linq-query";
 
 export class LinqService {
 
-    constructor(public readonly baseUrl: string = '', 
-                private readonly requestProvider: IRequestProvider<AjaxOptions> = vanillaRequestProviderInstance) {
+    constructor(private readonly requestProvider: IRequestProvider<AjaxOptions> = vanillaRequestProviderInstance) {
     }
 
-    createQuery<T>(): LinqQuery<T> {
-        return new LinqQueryProvider(this.requestProvider).createQuery<T>();
+    createQuery<T>(url?: string): LinqQuery<T> {
+        const q = new LinqQueryProvider(this.requestProvider).createQuery<T>();
+        return url ? q.withOptions({ url }) : q;
     }
 }

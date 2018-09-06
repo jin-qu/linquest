@@ -13,7 +13,7 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
     constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
 
-    createQuery<T>(parts?: IQueryPart[]) {
+    createQuery<T>(parts?: IQueryPart[]): LinqQuery<T> {
         return new LinqQuery<T>(this, parts);
     }
 
