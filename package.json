@@ -39,7 +39,9 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
+    "@types/sinon": "^5.0.2",
     "jinqu": "^0.1.8",
-    "jokenizer": "^0.1.5"
+    "jokenizer": "^0.1.5",
+    "sinon": "^6.2.0"
   }
 }
