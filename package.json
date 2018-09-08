@@ -40,7 +40,7 @@
     "xhr-mocklet": "^1.2.2"
   },
   "dependencies": {
-    "jinqu": "^0.1.8",
+    "jinqu": "^0.1.9",
     "jokenizer": "^0.1.5"
   }
 }
