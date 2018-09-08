@@ -12,12 +12,11 @@ import mock from 'xhr-mocklet';
 describe('Ajax tests', () => {
 
     mock.setup();
-    let method, url;
-    const open = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function(m: string, u?: string) {
-        method = m;
-        url = u;
-        open.call(this, arguments);
+    let xhr;
+    const send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function(body?: Document | BodyInit) {
+        xhr = this;
+        send.call(this, arguments);
     };
     const service = new LinqService();
 
@@ -25,18 +24,17 @@ describe('Ajax tests', () => {
         mock.teardown();
     });
 
-
     it('should set url', () => {
         const query = service.createQuery<Company>('Companies')
-            .where(c => c.id != 1)
+            .where(c => c.name != '!=')
             .orderBy(c => c.id)
             .skip(10)
             .take(10);
 
         expect(query.toArrayAsync()).eventually.be.null;
-        expect(method).to.equal('GET');
-        const wherePart = encodeURIComponent('(c) => c.id != 1');
+        expect(xhr.method).to.equal('GET');
+        const wherePart = encodeURIComponent('(c) => c.name != "!="');
         const orderPart = encodeURIComponent('(c) => c.id');
-        expect(url).to.equal(`Companies?$where=${wherePart}&$orderBy=${orderPart}&$skip=10&$take=10`);
+        expect(xhr.url).to.equal(`Companies?$where=${wherePart}&$orderBy=${orderPart}&$skip=10&$take=10`);
     });
 });
