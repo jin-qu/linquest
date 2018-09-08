@@ -44,7 +44,7 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
     }
 }
 
-function expToStr(exp: Expression, scopes: any[]): string {
+export function expToStr(exp: Expression, scopes: any[]): string {
     switch (exp.type) {
         case ExpressionType.Literal:
             return convertValue((exp as LiteralExpression).value);
@@ -111,7 +111,7 @@ function readVar(exp: VariableExpression, scopes: any[]) {
 }
 
 function readProp(member: string, scopes: any[]) {
-    const s = scopes.find(s => member in s);
+    const s = scopes && scopes.find(s => member in s);
     return s ? s[member] : member;
 }
 
