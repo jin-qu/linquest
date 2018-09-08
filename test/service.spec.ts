@@ -23,7 +23,7 @@ describe('Service tests', () => {
         const query = service.createQuery<Company>('Companies').where(c => c.id === 3);
 
         expect(query.toArrayAsync()).eventually.be.null;
-        expect(provider.options.params).to.have.length(2);
+        expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].value).to.contain(`(c) => c.id == 3`);
     });
 
@@ -31,7 +31,7 @@ describe('Service tests', () => {
         const query = service.createQuery<Company>('Companies').groupBy(c => c.name, g => g.count());
 
         expect(query.toArrayAsync()).eventually.be.null;
-        expect(provider.options.params).to.have.length(2);
+        expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].value).to.equal(`(c) => c.name;(g) => g.count()`);
     });
 });

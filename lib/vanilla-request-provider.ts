@@ -14,7 +14,7 @@ export class VanillaRequestProvider implements IRequestProvider<AjaxOptions>, IA
     ajax<T>(o: AjaxOptions) {
         var xhr = new XMLHttpRequest();
 
-        const params = o.params && o.params.map(p => `p.key=${encodeURIComponent(p.value)}`).join('&');
+        const params = o.params && o.params.map(p => `${p.key}=${encodeURIComponent(p.value)}`).join('&');
         let url = `${o.url || ''}${params ? '?' + params : ''}`;
 
         xhr.open(o.method || 'GET', url);

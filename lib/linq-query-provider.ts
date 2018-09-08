@@ -26,6 +26,8 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
         let os: TOptions[] = [];
 
         for (let p of parts) {
+            if (!p.args.length) continue;
+            
             if (p.type === AjaxFuncs.options) {
                 os.push(p.args[0].literal);
             } else {
@@ -37,7 +39,7 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
     }
 
     handlePart(part: IQueryPart): QueryParameter {
-        const args = part.args.map(a => expToStr(a.exp, a.scopes)).join(';');
+        const args = part.args.map(a => a.literal != null ? a.literal : expToStr(a.exp, a.scopes)).join(';');
         return { key: '$' + part.type, value: args };
     }
 }
@@ -61,7 +63,6 @@ function expToStr(exp: Expression, scopes: any[]): string {
                     const ae = m as AssignExpression;
                     return `${expToStr(ae.right, scopes)} as ${ae.name}`;
                 }
-
                 return m.name;
             }).join(', ');
             return `new (${assigns})`;
@@ -122,4 +123,4 @@ function mapFunction(call: CallExpression, scopes: any[]) {
     const callee = expToStr(call.callee, scopes);
     const args = call.args.map(a => expToStr(a, scopes)).join(', ');
     return `${callee}(${args})`;
-} 
+}
