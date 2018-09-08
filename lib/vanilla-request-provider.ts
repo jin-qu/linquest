@@ -2,7 +2,12 @@ import { IAjaxProvider, IRequestProvider, AjaxOptions, QueryParameter, mergeAjax
 
 export class VanillaRequestProvider implements IRequestProvider<AjaxOptions>, IAjaxProvider {
 
-    readonly defaultOptions: AjaxOptions = {};
+    readonly defaultOptions: AjaxOptions = {
+        headers: {
+            'Accept': 'application/json; charset=utf-8',
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    };
 
     request<T>(params: QueryParameter[], options: AjaxOptions[]) {
         const o = (options || []).reduce(mergeAjaxOptions, this.defaultOptions);
