@@ -80,10 +80,13 @@ export function expToStr(exp: Expression, scopes: any[]): string {
             return `${expToStr(iexp.owner, scopes)}[${expToStr(iexp.key, scopes)}]`;
         case ExpressionType.Func:
             const fexp = exp as FuncExpression;
+            if (fexp.parameters.length > 1)
+                throw new Error('Functions with more than one parameters are not supported.');
+            
+            const p = fexp.parameters[0];
             const a = {};
-            fexp.parameters.forEach(p => a[p] = readProp(p, scopes));
-            const left = `(${fexp.parameters.join(', ')}) => `;
-            return left + expToStr(fexp.body, [a, ...scopes]);
+            a[p] = 'it';
+            return `${expToStr(fexp.body, [a, ...scopes])}`;
         case ExpressionType.Call:
             const cexp = exp as CallExpression;
             return mapFunction(cexp, scopes);

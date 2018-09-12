@@ -33,8 +33,8 @@ describe('Ajax tests', () => {
 
         expect(query.toArrayAsync()).eventually.be.null;
         expect(xhr.method).to.equal('GET');
-        const wherePart = encodeURIComponent('(c) => c.name != "!="');
-        const orderPart = encodeURIComponent('(c) => c.id');
+        const wherePart = encodeURIComponent('it.name != "!="');
+        const orderPart = encodeURIComponent('it.id');
         expect(xhr.url).to.equal(`Companies?$where=${wherePart}&$orderBy=${orderPart}&$skip=10&$take=10`);
     });
 });
