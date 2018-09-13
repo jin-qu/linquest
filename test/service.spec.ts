@@ -10,7 +10,7 @@ chai.use(chaiAsPromised);
 describe('Service tests', () => {
 
     const provider = new MockRequestProvider();
-    const service = new LinqService(provider);
+    const service = new LinqService('', provider);
 
     it('should set url', () => {
         const query = service.createQuery<Company>('Companies');

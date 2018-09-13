@@ -1,7 +1,6 @@
-import { AjaxOptions } from 'jinqu';
-import { VanillaRequestProvider } from '../lib/vanilla-request-provider';
+import { AjaxOptions, IAjaxProvider } from 'jinqu';
 
-export class MockRequestProvider extends VanillaRequestProvider {
+export class MockRequestProvider implements IAjaxProvider {
 
     options: AjaxOptions;
 

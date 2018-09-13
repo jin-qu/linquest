@@ -1,15 +1,30 @@
-import { AjaxOptions, IRequestProvider } from "jinqu";
-import { vanillaRequestProviderInstance } from "./vanilla-request-provider";
+import { IRequestProvider, IAjaxProvider, AjaxOptions, QueryParameter, mergeAjaxOptions } from "jinqu";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { LinqQuery } from "./linq-query";
+import { FetchRequestProvider } from "./fetch-request-provider";
 
-export class LinqService {
+export class LinqService implements IRequestProvider<AjaxOptions> {
 
-    constructor(private readonly requestProvider: IRequestProvider<AjaxOptions> = vanillaRequestProviderInstance) {
+    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchRequestProvider()) {
     }
 
-    createQuery<T>(url?: string): LinqQuery<T> {
-        const q = new LinqQueryProvider(this.requestProvider).createQuery<T>();
-        return url ? q.withOptions({ url }) : q;
+    static readonly defaultOptions: AjaxOptions = {};
+
+    request<TResult>(params: QueryParameter[], options: AjaxOptions[]): PromiseLike<TResult> {
+        const d = Object.assign({}, LinqService.defaultOptions);
+        const o = (options || []).reduce(mergeAjaxOptions, d);
+        if (this.baseAddress) {
+            if (o.url && this.baseAddress[this.baseAddress.length - 1] !== '/' && o.url[o.url.length - 1] !== '/') {
+                o.url = '/' + o.url;
+            }
+            o.url = this.baseAddress + o.url;
+        }
+        o.params = (params || []).concat(o.params || []);
+
+        return this.ajaxProvider.ajax(o);
+    }
+
+    createQuery<T>(url: string): LinqQuery<T> {
+        return new LinqQueryProvider(this).createQuery<T>().withOptions({ url });
     }
 }
