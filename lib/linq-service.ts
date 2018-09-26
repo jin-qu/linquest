@@ -14,10 +14,10 @@ export class LinqService implements IRequestProvider<AjaxOptions> {
         const d = Object.assign({}, LinqService.defaultOptions);
         const o = (options || []).reduce(mergeAjaxOptions, d);
         if (this.baseAddress) {
-            if (o.url && this.baseAddress[this.baseAddress.length - 1] !== '/' && o.url[o.url.length - 1] !== '/') {
+            if (this.baseAddress[this.baseAddress.length - 1] !== '/' && o.url && o.url[0] !== '/') {
                 o.url = '/' + o.url;
             }
-            o.url = this.baseAddress + o.url;
+            o.url = this.baseAddress + (o.url || '');
         }
         o.params = (params || []).concat(o.params || []);
 

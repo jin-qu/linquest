@@ -7,6 +7,7 @@ import chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised)
 
 import fetchMock = require('fetch-mock');
+import { LinqService } from '../lib/linq-service';
 const emptyResponse = {};
 
 describe('Ajax tests', () => {
@@ -26,7 +27,7 @@ describe('Ajax tests', () => {
             }
         );
 
-        const service = new CompanyService();
+        const service = new LinqService();
         const query = service.createQuery<Company>('Companies')
             .where(o => o.id > 5)
             .orderBy(o => o.id)

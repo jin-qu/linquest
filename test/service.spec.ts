@@ -5,6 +5,7 @@ import chaiAsPromised = require('chai-as-promised');
 import { CompanyService, MockRequestProvider } from './fixture';
 import { LinqQueryProvider } from '../lib/linq-query-provider';
 import { LinqService } from '../lib/linq-service';
+import { QueryPart, PartArgument } from 'jinqu';
 
 chai.use(chaiAsPromised);
 
@@ -21,6 +22,20 @@ describe('Service tests', () => {
         const query2 = new LinqService('api', provider).createQuery('Companies');
         expect(query2.toArrayAsync()).eventually.be.null;
         expect(provider).property('options').property('url').to.equal('api/Companies');
+
+        const query3 = new LinqService('api/', provider).createQuery('Companies');
+        expect(query3.toArrayAsync()).eventually.be.null;
+        expect(provider).property('options').property('url').to.equal('api/Companies');
+
+        const query4 = new LinqService('api', provider).createQuery('/Companies');
+        expect(query4.toArrayAsync()).eventually.be.null;
+        expect(provider).property('options').property('url').to.equal('api/Companies');
+
+        const query5 = new LinqService('api', provider).createQuery('');
+        expect(query5.toArrayAsync()).eventually.be.null;
+        expect(provider).property('options').property('url').to.equal('api');
+
+        expect(service.request(null, null)).eventually.be.null;
     });
 
     it('should create where query parameter', () => {
@@ -118,5 +133,10 @@ describe('Service tests', () => {
     it('should throw when async iterator called', () => {
         const query = service.companies().where(c => c.id == 1)
         expect(() => new LinqQueryProvider(service).executeAsyncIterator(query.parts)).to.throw();
+    });
+
+    it('should throw for unknown expression', () => {
+        const invalidPart = new QueryPart('NONE', [<any>{ exp: { type: 'NONE' } }]);
+        expect(() => new LinqQueryProvider(service).handlePart(invalidPart)).to.throw();
     });
 });
