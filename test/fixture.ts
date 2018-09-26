@@ -1,4 +1,5 @@
 import { AjaxOptions, IAjaxProvider } from 'jinqu';
+import { LinqService } from '../lib/linq-service';
 
 export class MockRequestProvider implements IAjaxProvider {
 
@@ -10,7 +11,26 @@ export class MockRequestProvider implements IAjaxProvider {
     }
 }
 
+export class Address {
+    id: number;
+    text: string;
+}
+
 export interface Company {
     id: number;
     name: string;
+    deleted: boolean;
+    createDate: Date;
+    address: Address;
+}
+
+export class CompanyService extends LinqService {
+
+    constructor(provider?: MockRequestProvider) {
+        super('', provider);
+    }
+
+    companies() {
+        return this.createQuery<Company>('Companies');
+    }
 }

@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import 'mocha';
-import { LinqService } from '../lib/linq-service';
-import { Company } from './fixture';
+import { Company, CompanyService } from './fixture';
 
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
@@ -27,7 +26,7 @@ describe('Ajax tests', () => {
             }
         );
 
-        const service = new LinqService();
+        const service = new CompanyService();
         const query = service.createQuery<Company>('Companies')
             .where(o => o.id > 5)
             .orderBy(o => o.id)
@@ -40,5 +39,18 @@ describe('Ajax tests', () => {
         expect(options.method).to.equal('GET');
 
         fetchMock.restore();
+    });
+
+    it('should throw when timeout elapsed', async () => {
+        fetchMock.get(
+            `Companies`,
+            emptyResponse,
+            { method: 'GET' }
+        );
+
+        const service = new CompanyService();
+        const query = service.companies().withOptions({ timeout: 100 });
+
+        expect(query.toArrayAsync()).eventually.be.rejectedWith('Request timed out');
     });
 });
