@@ -120,8 +120,10 @@ function readProp(member: string, scopes: any[]) {
 }
 
 function convertValue(value) {
+    if (value === void 0)
+        return 'null';
     if (typeof value === 'string')
-        return `"${value.replace(/"/g, '""')}"`; '"' + + '"';
+        return `"${value.replace(/"/g, '""')}"`;;
     if (Object.prototype.toString.call(value) === '[object Date]')
         return `"${value.toISOString()}"`;
 
