@@ -62,7 +62,7 @@ describe('Service tests', () => {
         expect(query.toArrayAsync()).eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
-        expect(provider.options.params[0].value).to.contain(`c => c.createDate == "1988-03-13T22:00:00.000Z"`);
+        expect(provider.options.params[0].value).to.contain(`c => c.createDate == "${cd.toISOString()}"`);
     });
 
     it('should create where with null filter', () => {
