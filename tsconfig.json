@@ -1,21 +1,21 @@
 {
-    "compilerOptions": {
-      "target": "es5",
-      "module": "umd",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "./dist",
-      "declaration": true,
-      "downlevelIteration": true,
-      "lib": [
-        "es2015",
-        "dom"
-      ]
-    },
-    "compileOnSave": true,
-    "include": [
-      "./index.ts",
-      "./lib/**/*.ts"
+  "compilerOptions": {
+    "target": "es5",
+    "module": "umd",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "downlevelIteration": true,
+    "lib": [
+      "es2015",
+      "dom",
+      "esnext.asynciterable"
     ]
-  }
-  
+  },
+  "compileOnSave": true,
+  "include": [
+    "./index.ts",
+    "./lib/**/*.ts"
+  ]
+}

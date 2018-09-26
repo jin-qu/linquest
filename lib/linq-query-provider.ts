@@ -27,7 +27,7 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
 
         for (let p of parts) {
             if (!p.args.length) continue;
-            
+
             if (p.type === AjaxFuncs.options) {
                 os.push(p.args[0].literal);
             } else {
@@ -36,6 +36,10 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
         }
 
         return this.requestProvider.request<TResult>(prms, os);
+    }
+
+    executeAsyncIterator<TResult = any>(parts: IQueryPart[]): AsyncIterator<TResult> {
+        throw new Error("Method not implemented.");
     }
 
     handlePart(part: IQueryPart): QueryParameter {
@@ -68,25 +72,22 @@ export function expToStr(exp: Expression, scopes: any[]): string {
             return `new (${assigns})`;
         case ExpressionType.Array:
             const aexp = exp as ArrayExpression;
-            return `new [${aexp.items.map(e => expToStr(e, scopes)).join(', ')}]`;
+            return `new [] {${aexp.items.map(e => expToStr(e, scopes)).join(', ')}}`;
         case ExpressionType.Binary:
             const bexp = exp as BinaryExpression;
             return `${expToStr(bexp.left, scopes)} ${getBinaryOp(bexp.operator)} ${expToStr(bexp.right, scopes)}`;
         case ExpressionType.Member:
             const mexp = exp as MemberExpression;
-            return `${expToStr(mexp.owner, scopes)}.${mexp.member.name}`;
+            return `${expToStr(mexp.owner, scopes)}.${mexp.name}`;
         case ExpressionType.Indexer:
             const iexp = exp as IndexerExpression;
             return `${expToStr(iexp.owner, scopes)}[${expToStr(iexp.key, scopes)}]`;
         case ExpressionType.Func:
             const fexp = exp as FuncExpression;
-            if (fexp.parameters.length > 1)
-                throw new Error('Functions with more than one parameters are not supported.');
-            
-            const p = fexp.parameters[0];
             const a = {};
-            a[p] = 'it';
-            return `${expToStr(fexp.body, [a, ...scopes])}`;
+            fexp.parameters.forEach(p => a[p] = readProp(p, scopes));
+            const prm = fexp.parameters.length == 1 ? fexp.parameters[0] : `(${fexp.parameters.join(', ')})`;
+            return prm + ' => ' + expToStr(fexp.body, [a, ...scopes]);
         case ExpressionType.Call:
             const cexp = exp as CallExpression;
             return mapFunction(cexp, scopes);
@@ -120,10 +121,10 @@ function readProp(member: string, scopes: any[]) {
 
 function convertValue(value) {
     if (typeof value === 'string')
-        return `"${value.replace(/"/g, '""')}"`; '"' +  + '"';
+        return `"${value.replace(/"/g, '""')}"`; '"' + + '"';
     if (Object.prototype.toString.call(value) === '[object Date]')
         return `"${value.toISOString()}"`;
-    
+
     return value;
 }
 

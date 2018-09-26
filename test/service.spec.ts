@@ -24,14 +24,14 @@ describe('Service tests', () => {
 
         expect(query.toArrayAsync()).eventually.be.null;
         expect(provider.options.params).to.have.length(1);
-        expect(provider.options.params[0].value).to.contain(`it.id == 3`);
+        expect(provider.options.params[0].value).to.contain(`c => c.id == 3`);
     });
 
     it('should create groupBy query parameter', () => {
-        const query = service.createQuery<Company>('Companies').groupBy(c => c.name, g => g.count());
+        const query = service.createQuery<Company>('Companies').groupBy(c => c.name, (_, g) => g.count());
 
         expect(query.toArrayAsync()).eventually.be.null;
         expect(provider.options.params).to.have.length(1);
-        expect(provider.options.params[0].value).to.equal(`it.name;it.count()`);
+        expect(provider.options.params[0].value).to.equal(`c => c.name;(_, g) => g.count()`);
     });
 });
