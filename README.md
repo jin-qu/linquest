@@ -28,7 +28,7 @@ Linquest uses [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 
 To use a custom request provider, you need to implement IAjaxProvider interface from [jinqu](https://github.com/jin-qu/jinqu/)
 
-```
+```JavaScript
 import { IAjaxProvider, AjaxOptions } from "jinqu";
 
 export class FetchRequestProvider implements IAjaxProvider {
@@ -40,14 +40,34 @@ export class FetchRequestProvider implements IAjaxProvider {
 
 ```
 
-# Supported Expressions
-where, ofType, cast, select, selectMany, join, groupJoin, orderBy, orderByDescending, thenBy, thenByDescending, take, takeWhile, skip, skipWhile, groupBy, distinct, concat, zip, union, intersect, except, defaultIfEmpty, reverse, first, firstOrDefault, last, lastOrDefault, single, singleOrDefault, elementAt, elementAtOrDefault, contains, sequenceEqual, any, all, count, min, max, sum, average, aggregate, toArray
+# Code Generation
+With code generation from a metadata (like [Swagger](https://github.com/swagger-api) or [OpenAPI](https://github.com/OAI/OpenAPI-Specification/), you can really simplify the usage.
 
-Array.range, Array.repeat
+```JavaScript
+// generated code
 
-# And more...
-It's not just Linq implementation, thanks to [Jokenizer](https://github.com/umutozel/jokenizer) expressions and flexible architecture, we can use Jinqu to create custom querying libraries - like OData, GraphQL or Server-Side Linq. Take a look at [Beetle.js](https://github.com/Beetlejs/beetle.js)
+export interface Company {
+    id: number;
+    name: string;
+    createDate: Date;
+}
 
+export class CompanyService extends LinqService {
+
+    constructor(provider?: IAjaxProvider) {
+        super('https://my.company.service.com/', provider);
+    }
+
+    companies() {
+        return this.createQuery<Company>('Companies');
+    }
+}
+
+// and you can use it like this
+const service = new CompanyService();
+const query = service.companies().where(c => c.name !== "Netflix"));
+const result = await query.toArrayAsync();
+```
 
 # License
 Jinqu is under the [MIT License](LICENSE).
