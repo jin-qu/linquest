@@ -23,7 +23,7 @@ const query = service.createQuery<Company>('Companies');
 const result = await query.where(p => p.Id > 5).toArrayAsync();
 ```
 
-### Request providers
+# Request providers
 Linquest uses [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) as default, you might need to use a [polyfill](https://github.com/github/fetch).
 
 To use a custom request provider, you need to implement IAjaxProvider interface from [jinqu](https://github.com/jin-qu/jinqu/)
