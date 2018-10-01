@@ -31,12 +31,16 @@ To use a custom request provider, you need to implement IAjaxProvider interface 
 ```JavaScript
 import { IAjaxProvider, AjaxOptions } from "jinqu";
 
-export class FetchRequestProvider implements IAjaxProvider {
+// implement the IAjaxProvider interface
+export class MyRequestProvider implements IAjaxProvider {
 
   ajax<T>(o: AjaxOptions): Promise<T> {
     // implement this
   }
 }
+
+// inject provider to LinqService
+const service = new LinqService('https://my.company.service.com/', new MyRequestProvider());
 
 ```
 
@@ -45,7 +49,6 @@ With code generation from a metadata (like [Swagger](https://github.com/swagger-
 
 ```JavaScript
 // generated code
-
 export interface Company {
     id: number;
     name: string;
