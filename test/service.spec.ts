@@ -5,7 +5,7 @@ import chaiAsPromised = require('chai-as-promised');
 import { CompanyService, MockRequestProvider } from './fixture';
 import { LinqQueryProvider } from '../lib/linq-query-provider';
 import { LinqService } from '../lib/linq-service';
-import { QueryPart, PartArgument } from 'jinqu';
+import { QueryPart } from 'jinqu';
 
 chai.use(chaiAsPromised);
 
@@ -56,7 +56,7 @@ describe('Service tests', () => {
         expect(query.toArrayAsync()).eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
-        expect(provider.options.params[0].value).to.contain(`c => new[] {1, 2, 3}.contains(c.id)`);
+        expect(provider.options.params[0].value).to.contain(`c => new[] {1, 2, 3}.Contains(c.id)`);
     });
 
     it('should create where with indexer access', () => {
@@ -114,7 +114,7 @@ describe('Service tests', () => {
 
         expect(query.toArrayAsync()).eventually.be.null;
         expect(provider.options.params).to.have.length(1);
-        expect(provider.options.params[0].value).to.equal(`c => c.name;(_, g) => g.count()`);
+        expect(provider.options.params[0].value).to.equal(`c => c.name;(_, g) => g.Count()`);
     });
 
     it('should create include', () => {

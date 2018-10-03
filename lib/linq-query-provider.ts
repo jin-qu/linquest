@@ -43,9 +43,9 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
     }
 
     handlePart(part: IQueryPart): QueryParameter {
-        const args = part.args.map(a => 
-            a.literal != null 
-                ? a.literal 
+        const args = part.args.map(a =>
+            a.literal != null
+                ? a.literal
                 : expToStr(a.exp, a.scopes, a.exp.type === ExpressionType.Func ? (a.exp as FuncExpression).parameters : [])
         ).join(';');
         return { key: '$' + part.type, value: args };
@@ -116,14 +116,14 @@ function getUnaryOp(op: string) {
 }
 
 function readVar(exp: VariableExpression, scopes: any[], parameters: string[]) {
-    return parameters.indexOf(exp.name) >= 0 
-        ? exp.name 
+    return parameters.indexOf(exp.name) >= 0
+        ? exp.name
         : readScope(exp.name, scopes);
 }
 
 function readScope(name: string, scopes: any[]) {
     const s = scopes && scopes.find(s => name in s);
-    return s && convertValue(s[name]);
+    return (s && convertValue(s[name])) || name;
 }
 
 function convertValue(value) {
@@ -138,7 +138,44 @@ function convertValue(value) {
 }
 
 function mapFunction(call: CallExpression, scopes: any[], parameters: string[]) {
-    const callee = expToStr(call.callee, scopes, parameters);
+    const callee = call.callee as VariableExpression;
+    if (callee.type !== ExpressionType.Member && callee.type !== ExpressionType.Variable)
+        throw new Error(`Invalid function call ${expToStr(call.callee, scopes, parameters)}`);
+
+    const left = callee.type === ExpressionType.Variable
+        ? ''
+        : expToStr((callee as MemberExpression).owner, scopes, parameters) + '.';
+
+    const func = callee.name;
+    const prmless = parmeterlessFuncs[func];
+    if (prmless) {
+        if (call.args.length)
+            throw new Error(`No argument expected for function ${func}`);
+
+        return `${left}${prmless}`;
+    }
+
     const args = call.args.map(a => expToStr(a, scopes, parameters)).join(', ');
-    return `${callee}(${args})`;
+    switch (func) {
+        case 'substr': return left + `Substring(${args})`;
+        case 'includes': return left + `Contains(${args})`;
+    }
+
+    const pascalFunc = func.charAt(0).toUpperCase() + func.substr(1);
+    return `${left}${pascalFunc}(${args})`;
 }
+
+const parmeterlessFuncs = {
+    'toString': 'ToString()',
+    'getFullYear': 'Year',
+    'getMonth': 'Month - 1',
+    'getDay': 'Day',
+    'getHours': 'Hour',
+    'getMinutes': 'Minute',
+    'getSeconds': 'Second',
+    'getMilliseconds': 'Millisecond',
+    'toLowerCase': 'ToLower()',
+    'toLocaleLowerCase': 'ToLower()',
+    'toUpperCase': 'ToUpper()',
+    'toLocaleUpperCase': 'ToUpper()'
+};

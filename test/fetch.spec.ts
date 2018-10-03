@@ -10,7 +10,7 @@ import fetchMock = require('fetch-mock');
 import { LinqService } from '../lib/linq-service';
 const emptyResponse = {};
 
-describe('Ajax tests', () => {
+describe('Fetch tests', () => {
 
     it('should set url', () => {
         fetchMock.get(
@@ -50,7 +50,7 @@ describe('Ajax tests', () => {
         );
 
         const service = new CompanyService();
-        const query = service.companies().withOptions({ timeout: 100 });
+        const query = service.companies().withOptions({ timeout: 1 });
 
         expect(query.toArrayAsync()).eventually.be.rejectedWith('Request timed out');
     });
