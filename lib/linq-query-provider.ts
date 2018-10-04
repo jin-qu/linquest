@@ -5,13 +5,15 @@ import {
     BinaryExpression, MemberExpression, IndexerExpression, FuncExpression,
     CallExpression, TernaryExpression
 } from 'jokenizer';
-import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, AjaxOptions, IRequestProvider } from "jinqu";
-import { LinqQuery } from "./linq-query";
+import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider, IQuery } from "jinqu";
+import { LinqQuery, LinqOptions } from "./linq-query";
 
-export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryProvider {
+export class LinqQueryProvider<TOptions extends LinqOptions> implements IQueryProvider {
 
     constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
+
+    pascalize: boolean;
 
     createQuery<T>(parts?: IQueryPart[]): LinqQuery<T> {
         return new LinqQuery<T>(this, parts);
@@ -22,20 +24,25 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
     }
 
     executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
-        const prms: QueryParameter[] = [];
-        let os: TOptions[] = [];
+        const ps: IQueryPart[] = [];
+        const os: TOptions[] = [];
 
         for (let p of parts) {
             if (!p.args.length) continue;
 
             if (p.type === AjaxFuncs.options) {
-                os.push(p.args[0].literal);
+                const o: TOptions = p.args[0].literal;
+                os.push(o);
+
+                if (o && o.pascalize != null) {
+                    this.pascalize = o.pascalize;
+                }
             } else {
-                prms.push(this.handlePart(p));
+                ps.push(p);
             }
         }
 
-        return this.requestProvider.request<TResult>(prms, os);
+        return this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
     }
 
     executeAsyncIterator<TResult = any>(parts: IQueryPart[]): AsyncIterator<TResult> {
@@ -46,61 +53,144 @@ export class LinqQueryProvider<TOptions extends AjaxOptions> implements IQueryPr
         const args = part.args.map(a =>
             a.literal != null
                 ? a.literal
-                : expToStr(a.exp, a.scopes, a.exp.type === ExpressionType.Func ? (a.exp as FuncExpression).parameters : [])
+                : this.expToStr(a.exp, a.scopes, a.exp.type === ExpressionType.Func ? (a.exp as FuncExpression).parameters : [])
         ).join(';');
         return { key: '$' + part.type, value: args };
     }
-}
 
-export function expToStr(exp: Expression, scopes: any[], parameters: string[]): string {
-    switch (exp.type) {
-        case ExpressionType.Literal:
-            return convertValue((exp as LiteralExpression).value);
-        case ExpressionType.Variable:
-            return readVar((exp as VariableExpression), scopes, parameters);
-        case ExpressionType.Unary:
-            const uexp = exp as UnaryExpression;
-            return `${getUnaryOp(uexp.operator)}${expToStr(uexp.target, scopes, parameters)}`;
-        case ExpressionType.Group:
-            const gexp = exp as GroupExpression;
-            return `(${gexp.expressions.map(e => expToStr(e, scopes, parameters)).join(', ')})`;
-        case ExpressionType.Object:
-            const oexp = exp as ObjectExpression;
-            const assigns = oexp.members.map(m => {
-                const ae = m as AssignExpression;
-                return `${ae.name} = ${expToStr(ae.right, scopes, parameters)}`;
-            }).join(', ');
-            return `new {${assigns}}`;
-        case ExpressionType.Array:
-            const aexp = exp as ArrayExpression;
-            return `new[] {${aexp.items.map(e => expToStr(e, scopes, parameters)).join(', ')}}`;
-        case ExpressionType.Binary:
-            const bexp = exp as BinaryExpression;
-            const left = expToStr(bexp.left, scopes, parameters);
-            const op = getBinaryOp(bexp.operator);
-            const right = expToStr(bexp.right, scopes, parameters);
-            return `${left} ${op} ${right}`;
-        case ExpressionType.Member:
-            const mexp = exp as MemberExpression;
-            return `${expToStr(mexp.owner, scopes, parameters)}.${mexp.name}`;
-        case ExpressionType.Indexer:
-            const iexp = exp as IndexerExpression;
-            return `${expToStr(iexp.owner, scopes, parameters)}[${expToStr(iexp.key, scopes, parameters)}]`;
-        case ExpressionType.Func:
-            const fexp = exp as FuncExpression;
-            const prm = fexp.parameters.length == 1 ? fexp.parameters[0] : `(${fexp.parameters.join(', ')})`;
-            return prm + ' => ' + expToStr(fexp.body, scopes, [...fexp.parameters, ...parameters]);
-        case ExpressionType.Call:
-            const cexp = exp as CallExpression;
-            return mapFunction(cexp, scopes, parameters);
-        case ExpressionType.Ternary:
-            const texp = exp as TernaryExpression;
-            const predicate = expToStr(texp.predicate, scopes, parameters);
-            const whenTrue = expToStr(texp.whenTrue, scopes, parameters);
-            const whenFalse = expToStr(texp.whenFalse, scopes, parameters);
-            return `${predicate} ? ${whenTrue} : ${whenFalse}`;
-        default:
-            throw new Error(`Unsupported expression type ${exp.type}`);
+    expToStr(exp: Expression, scopes: any[], parameters: string[]): string {
+        switch (exp.type) {
+            case ExpressionType.Literal:
+                return this.literalToStr(exp as LiteralExpression);
+            case ExpressionType.Variable:
+                return this.variableToStr(exp as VariableExpression, scopes, parameters);
+            case ExpressionType.Unary:
+                return this.unaryToStr(exp as UnaryExpression, scopes, parameters);
+            case ExpressionType.Group:
+                return this.groupToStr(exp as GroupExpression, scopes, parameters);
+            case ExpressionType.Object:
+                return this.objectToStr(exp as ObjectExpression, scopes, parameters);
+            case ExpressionType.Array:
+                return this.arrayToStr(exp as ArrayExpression, scopes, parameters);
+            case ExpressionType.Binary:
+                return this.binaryToStr(exp as BinaryExpression, scopes, parameters);
+            case ExpressionType.Member:
+                return this.memberToStr(exp as MemberExpression, scopes, parameters);
+            case ExpressionType.Indexer:
+                return this.indexerToStr(exp as IndexerExpression, scopes, parameters);
+            case ExpressionType.Func:
+                return this.funcToStr(exp as FuncExpression, scopes, parameters);
+            case ExpressionType.Call:
+                return this.callToStr(exp as CallExpression, scopes, parameters);
+            case ExpressionType.Ternary:
+                return this.ternaryToStr(exp as TernaryExpression, scopes, parameters);
+            default:
+                throw new Error(`Unsupported expression type ${exp.type}`);
+        }
+    }
+
+    literalToStr(exp: LiteralExpression) {
+        return this.valueToStr(exp.value);
+    }
+
+    variableToStr(exp: VariableExpression, scopes: any[], parameters: string[]) {
+        const name = exp.name;
+        if (parameters.indexOf(name) >= 0) return name;
+
+        const s = scopes && scopes.find(s => name in s);
+        return (s && this.valueToStr(s[name])) || name;
+    }
+
+    unaryToStr(exp: UnaryExpression, scopes: any[], parameters: string[]) {
+        return `${getUnaryOp(exp.operator)}${this.expToStr(exp.target, scopes, parameters)}`;
+    }
+
+    groupToStr(exp: GroupExpression, scopes: any[], parameters: string[]) {
+        return `(${exp.expressions.map(e => this.expToStr(e, scopes, parameters)).join(', ')})`;
+    }
+
+    objectToStr(exp: ObjectExpression, scopes: any[], parameters: string[]) {
+        const assigns = exp.members.map(m => {
+            const ae = m as AssignExpression;
+            return `${ae.name} = ${this.expToStr(ae.right, scopes, parameters)}`;
+        }).join(', ');
+
+        return `new {${assigns}}`;
+    }
+
+    arrayToStr(exp: ArrayExpression, scopes: any[], parameters: string[]) {
+        return `new[] {${exp.items.map(e => this.expToStr(e, scopes, parameters)).join(', ')}}`;
+    }
+
+    binaryToStr(exp: BinaryExpression, scopes: any[], parameters: string[]) {
+        const left = this.expToStr(exp.left, scopes, parameters);
+        const op = getBinaryOp(exp.operator);
+        const right = this.expToStr(exp.right, scopes, parameters);
+
+        return `${left} ${op} ${right}`;
+    }
+
+    memberToStr(exp: MemberExpression, scopes: any[], parameters: string[]) {
+        const member = this.pascalize
+            ? exp.name[0].toUpperCase() + exp.name.substr(1)
+            : exp.name;
+        return `${this.expToStr(exp.owner, scopes, parameters)}.${member}`;
+    }
+
+    indexerToStr(exp: IndexerExpression, scopes: any[], parameters: string[]) {
+        return `${this.expToStr(exp.owner, scopes, parameters)}[${this.expToStr(exp.key, scopes, parameters)}]`;
+    }
+
+    funcToStr(exp: FuncExpression, scopes: any[], parameters: string[]) {
+        const prm = exp.parameters.length == 1 ? exp.parameters[0] : `(${exp.parameters.join(', ')})`;
+        return prm + ' => ' + this.expToStr(exp.body, scopes, [...exp.parameters, ...parameters]);
+    }
+
+    callToStr(exp: CallExpression, scopes: any[], parameters: string[]) {
+        const callee = exp.callee as VariableExpression;
+        if (callee.type !== ExpressionType.Member && callee.type !== ExpressionType.Variable)
+            throw new Error(`Invalid function call ${this.expToStr(exp.callee, scopes, parameters)}`);
+
+        const left = callee.type === ExpressionType.Variable
+            ? ''
+            : this.expToStr((callee as MemberExpression).owner, scopes, parameters) + '.';
+
+        const func = callee.name;
+        const prmless = parmeterlessFuncs[func];
+        if (prmless) {
+            if (exp.args.length)
+                throw new Error(`No argument expected for function ${func}`);
+
+            return `${left}${prmless}`;
+        }
+
+        const args = exp.args.map(a => this.expToStr(a, scopes, parameters)).join(', ');
+        switch (func) {
+            case 'substr': return left + `Substring(${args})`;
+            case 'includes': return left + `Contains(${args})`;
+        }
+
+        const pascalFunc = func.charAt(0).toUpperCase() + func.substr(1);
+        return `${left}${pascalFunc}(${args})`;
+    }
+
+    ternaryToStr(exp: TernaryExpression, scopes: any[], parameters: string[]) {
+        const predicate = this.expToStr(exp.predicate, scopes, parameters);
+        const whenTrue = this.expToStr(exp.whenTrue, scopes, parameters);
+        const whenFalse = this.expToStr(exp.whenFalse, scopes, parameters);
+
+        return `${predicate} ? ${whenTrue} : ${whenFalse}`;
+    }
+
+    valueToStr(value) {
+        if (value == null)
+            return 'null';
+        if (typeof value === 'string')
+            return `"${value.replace(/"/g, '""')}"`;
+        if (Object.prototype.toString.call(value) === '[object Date]')
+            return `"${value.toISOString()}"`;
+
+        return value;
     }
 }
 
@@ -113,56 +203,6 @@ function getBinaryOp(op: string) {
 
 function getUnaryOp(op: string) {
     return op;
-}
-
-function readVar(exp: VariableExpression, scopes: any[], parameters: string[]) {
-    return parameters.indexOf(exp.name) >= 0
-        ? exp.name
-        : readScope(exp.name, scopes);
-}
-
-function readScope(name: string, scopes: any[]) {
-    const s = scopes && scopes.find(s => name in s);
-    return (s && convertValue(s[name])) || name;
-}
-
-function convertValue(value) {
-    if (value == null)
-        return 'null';
-    if (typeof value === 'string')
-        return `"${value.replace(/"/g, '""')}"`;
-    if (Object.prototype.toString.call(value) === '[object Date]')
-        return `"${value.toISOString()}"`;
-
-    return value;
-}
-
-function mapFunction(call: CallExpression, scopes: any[], parameters: string[]) {
-    const callee = call.callee as VariableExpression;
-    if (callee.type !== ExpressionType.Member && callee.type !== ExpressionType.Variable)
-        throw new Error(`Invalid function call ${expToStr(call.callee, scopes, parameters)}`);
-
-    const left = callee.type === ExpressionType.Variable
-        ? ''
-        : expToStr((callee as MemberExpression).owner, scopes, parameters) + '.';
-
-    const func = callee.name;
-    const prmless = parmeterlessFuncs[func];
-    if (prmless) {
-        if (call.args.length)
-            throw new Error(`No argument expected for function ${func}`);
-
-        return `${left}${prmless}`;
-    }
-
-    const args = call.args.map(a => expToStr(a, scopes, parameters)).join(', ');
-    switch (func) {
-        case 'substr': return left + `Substring(${args})`;
-        case 'includes': return left + `Contains(${args})`;
-    }
-
-    const pascalFunc = func.charAt(0).toUpperCase() + func.substr(1);
-    return `${left}${pascalFunc}(${args})`;
 }
 
 const parmeterlessFuncs = {

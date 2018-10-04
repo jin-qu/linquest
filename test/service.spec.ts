@@ -2,10 +2,9 @@ import { expect } from 'chai';
 import 'mocha';
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
-import { CompanyService, MockRequestProvider } from './fixture';
-import { LinqQueryProvider } from '../lib/linq-query-provider';
-import { LinqService } from '../lib/linq-service';
 import { QueryPart } from 'jinqu';
+import { LinqQueryProvider, LinqService, LinqOptions } from '..';
+import { CompanyService, MockRequestProvider } from './fixture';
 
 chai.use(chaiAsPromised);
 
@@ -124,6 +123,19 @@ describe('Service tests', () => {
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$include');
         expect(provider.options.params[0].value).to.contain(`c => c.address`);
+    });
+
+    it('should pascalize member names', () => {
+        const options: LinqOptions = { pascalize: true };
+        const query = service.companies()
+            .withOptions(options)
+            .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== 'Netflix')));
+
+        expect(query.toArrayAsync()).eventually.be.null;
+        expect(provider.options.params).to.have.length(1);
+        expect(provider.options.params[0].key).to.equal('$where');
+        expect(provider.options.params[0].value)
+            .to.contain(`c => !c.Deleted && ((c.Id < 3 && c.Name == "Netflix") || (c.Id >= 3 && c.Name != "Netflix"))`);
     });
 
     it('should throw when executed synchronously', () => {
