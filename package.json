@@ -1,6 +1,6 @@
 {
   "name": "linquest",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Remote Linq implementation with Jinqu infrastructure",
   "main": "dist/index.js",
   "keywords": [
@@ -21,8 +21,7 @@
     "test": "mocha --opts mocha.opts --reporter spec",
     "cover": "nyc --reporter text-summary mocha --opts mocha.opts --reporter spec",
     "coveralls": "nyc mocha --opts mocha.opts && nyc report --reporter=text-lcov --opts mocha.opts | coveralls",
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "tsc"
   },
   "author": "Umut Özel",
   "license": "MIT",
