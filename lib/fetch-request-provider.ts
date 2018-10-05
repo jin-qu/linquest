@@ -14,7 +14,19 @@ export class FetchRequestProvider implements IAjaxProvider {
         if (o.params && o.params.length) {
             o.url += '?' + o.params.map(p => `${p.key}=${encodeURIComponent(p.value)}`).join('&');
         }
-        const p = fetch(o.url, createRequest(o));
+        const p = fetch(o.url, createRequest(o))
+            .then(response => {
+                return response.json()
+                    .then(data => {
+                        if (data != null) {
+                            data.$response = response;
+                            data.$inlineCount = response.headers.get('X-Inline-Count');
+                        }
+
+                        return data;
+                    });
+            });
+
         if (!o.timeout) return <any>p;
 
         return <any>Promise.race([
