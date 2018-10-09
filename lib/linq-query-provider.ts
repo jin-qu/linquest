@@ -5,25 +5,26 @@ import {
     BinaryExpression, MemberExpression, IndexerExpression, FuncExpression,
     CallExpression, TernaryExpression
 } from 'jokenizer';
-import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider, IQuery } from "jinqu";
+import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider } from "jinqu";
 import { LinqQuery, LinqOptions } from "./linq-query";
+import { FetchAttachedInfo } from './fetch-request-provider';
 
-export class LinqQueryProvider<TOptions extends LinqOptions> implements IQueryProvider {
+export class LinqQueryProvider<TOptions extends LinqOptions, TAttachedInfo = FetchAttachedInfo> implements IQueryProvider {
 
     constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
 
     pascalize: boolean;
 
-    createQuery<T>(parts?: IQueryPart[]): LinqQuery<T> {
-        return new LinqQuery<T>(this, parts);
+    createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TAttachedInfo> {
+        return new LinqQuery<T, TOptions, TAttachedInfo>(this, parts);
     }
 
-    execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult {
+    execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult & TAttachedInfo {
         throw new Error('Synchronous execution is not supported');
     }
 
-    executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
+    executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult & TAttachedInfo> {
         const ps: IQueryPart[] = [];
         const os: TOptions[] = [];
 
@@ -42,7 +43,7 @@ export class LinqQueryProvider<TOptions extends LinqOptions> implements IQueryPr
             }
         }
 
-        return this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
+        return this.requestProvider.request<TResult & TAttachedInfo>(ps.map(p => this.handlePart(p)), os);
     }
 
     executeAsyncIterator<TResult = any>(parts: IQueryPart[]): AsyncIterator<TResult> {

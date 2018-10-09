@@ -1,11 +1,12 @@
 import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions } from "jinqu";
 import { LinqQueryProvider } from "./linq-query-provider";
-import { LinqQuery, LinqOptions } from "./linq-query";
-import { FetchRequestProvider } from "./fetch-request-provider";
+import { LinqOptions } from "./linq-query";
+import { FetchAjaxProvider, FetchAttachedInfo } from "./fetch-request-provider";
 
-export class LinqService implements IRequestProvider<LinqOptions> {
+export class LinqService<TAttachedInfo = FetchAttachedInfo, TAjaxProvider extends IAjaxProvider<TAttachedInfo> = FetchAjaxProvider> 
+    implements IRequestProvider<LinqOptions, TAttachedInfo> {
 
-    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchRequestProvider()) {
+    constructor(private readonly baseAddress = '', private readonly ajaxProvider: TAjaxProvider = <any>new FetchAjaxProvider()) {
     }
 
     static readonly defaultOptions: LinqOptions = {};
@@ -24,8 +25,8 @@ export class LinqService implements IRequestProvider<LinqOptions> {
         return this.ajaxProvider.ajax(o);
     }
 
-    createQuery<T>(url: string): LinqQuery<T> {
-        return new LinqQueryProvider(this).createQuery<T>().withOptions({ url });
+    createQuery<T>(url: string) {
+        return new LinqQueryProvider<LinqOptions, TAttachedInfo>(this).createQuery<T>().withOptions({ url });
     }
 
     mergeLinqOptions(o1: LinqOptions, o2: LinqOptions): LinqOptions {

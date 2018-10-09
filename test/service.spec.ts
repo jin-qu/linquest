@@ -15,33 +15,33 @@ describe('Service tests', () => {
 
     it('should set url', () => {
         const query1 = service.companies();
-        expect(query1.toArrayAsync()).eventually.be.null;
+        expect(query1.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider).property('options').property('url').to.equal('Companies');
 
         const query2 = new LinqService('api', provider).createQuery('Companies');
-        expect(query2.toArrayAsync()).eventually.be.null;
+        expect(query2.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider).property('options').property('url').to.equal('api/Companies');
 
         const query3 = new LinqService('api/', provider).createQuery('Companies');
-        expect(query3.toArrayAsync()).eventually.be.null;
+        expect(query3.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider).property('options').property('url').to.equal('api/Companies');
 
         const query4 = new LinqService('api', provider).createQuery('/Companies');
-        expect(query4.toArrayAsync()).eventually.be.null;
+        expect(query4.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider).property('options').property('url').to.equal('api/Companies');
 
         const query5 = new LinqService('api', provider).createQuery('');
-        expect(query5.toArrayAsync()).eventually.be.null;
+        expect(query5.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider).property('options').property('url').to.equal('api');
 
-        expect(service.request(null, null)).eventually.be.null;
+        expect(service.request(null, null)).to.be.fulfilled.and.eventually.be.null;
     });
 
     it('should create where query parameter', () => {
         const query = service.companies()
             .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== 'Netflix')));
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value)
@@ -52,7 +52,7 @@ describe('Service tests', () => {
         const query = service.companies()
             .where(c => [1, 2, 3].contains(c.id));
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value).to.contain(`c => new[] {1, 2, 3}.Contains(c.id)`);
@@ -62,7 +62,7 @@ describe('Service tests', () => {
         const query = service.companies()
             .where(c => c.name[0] === 'N');
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value).to.contain(`c => c.name[0] == "N"`);
@@ -73,7 +73,7 @@ describe('Service tests', () => {
         const query = service.companies()
             .where(c => c.createDate === cd, { cd });
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value).to.contain(`c => c.createDate == "${cd.toISOString()}"`);
@@ -84,7 +84,7 @@ describe('Service tests', () => {
         const query = service.companies()
             .where(c => c.name === null);
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value).to.contain(`c => c.name == null`);
@@ -93,7 +93,7 @@ describe('Service tests', () => {
     it('should create select with new object', () => {
         const query = service.companies().select(c => ({ id: c.id, name: c.name }));
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$select');
         expect(provider.options.params[0].value).to.contain(`c => (new {id = c.id, name = c.name})`);
@@ -102,7 +102,7 @@ describe('Service tests', () => {
     it('should create select with ternary', () => {
         const query = service.companies().select(c => c.id > 10 ? 'BIG' : 'SMALL');
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$select');
         expect(provider.options.params[0].value).to.contain(`c => c.id > 10 ? "BIG" : "SMALL"`);
@@ -111,7 +111,7 @@ describe('Service tests', () => {
     it('should create groupBy query parameter', () => {
         const query = service.companies().groupBy(c => c.name, (_, g) => g.count());
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].value).to.equal(`c => c.name;(_, g) => g.Count()`);
     });
@@ -119,7 +119,7 @@ describe('Service tests', () => {
     it('should create include', () => {
         const query = service.companies().include(c => c.address);
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$include');
         expect(provider.options.params[0].value).to.contain(`c => c.address`);
@@ -131,7 +131,7 @@ describe('Service tests', () => {
             .withOptions(options)
             .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== 'Netflix')));
 
-        expect(query.toArrayAsync()).eventually.be.null;
+        expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value)

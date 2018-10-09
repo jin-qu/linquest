@@ -1,6 +1,6 @@
 import { IAjaxProvider, AjaxOptions, mergeAjaxOptions } from "jinqu";
 
-export class FetchRequestProvider implements IAjaxProvider {
+export class FetchAjaxProvider implements IAjaxProvider<FetchAttachedInfo> {
 
     static readonly defaultOptions: AjaxOptions = {
         method: 'GET',
@@ -19,8 +19,13 @@ export class FetchRequestProvider implements IAjaxProvider {
                 return response.json()
                     .then(data => {
                         if (data != null) {
-                            data.$response = response;
-                            data.$inlineCount = response.headers.get('X-Inline-Count');
+                            if (o.includeResponse === true) {
+                                data.$response = response;
+                            }
+                            const ic = response.headers.get('X-Inline-Count');
+                            if (ic != null) {
+                                data.$inlineCount = Number(ic);
+                            }
                         }
 
                         return data;
@@ -39,7 +44,7 @@ export class FetchRequestProvider implements IAjaxProvider {
 }
 
 export function createRequest(o: AjaxOptions) {
-    const d = Object.assign({}, FetchRequestProvider.defaultOptions);
+    const d = Object.assign({}, FetchAjaxProvider.defaultOptions);
     o = mergeAjaxOptions(d, o);
 
     return <RequestInit>{
@@ -47,4 +52,8 @@ export function createRequest(o: AjaxOptions) {
         headers: o.headers,
         method: o.method
     };
+}
+
+export interface FetchAttachedInfo {
+    $response?: Response;
 }

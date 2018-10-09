@@ -12,9 +12,9 @@ const emptyResponse = {};
 
 describe('Fetch tests', () => {
 
-    it('should set url', () => {
+    it('should set url', async () => {
         fetchMock.get(
-            `Companies`,
+            'Companies',
             emptyResponse,
             {
                 method: 'GET',
@@ -23,7 +23,8 @@ describe('Fetch tests', () => {
                     "$orderBy": "o => o.id",
                     "$skip": "10",
                     "$take": "10"
-                }
+                },
+                overwriteRoutes: false
             }
         );
 
@@ -34,7 +35,8 @@ describe('Fetch tests', () => {
             .skip(10)
             .take(10);
 
-        expect(query.toArrayAsync()).eventually.be.equal(emptyResponse);
+        const r = await query.toArrayAsync();
+        expect(r).deep.equal(emptyResponse);
 
         const options = fetchMock.lastOptions();
         expect(options.method).to.equal('GET');
@@ -42,16 +44,90 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
+    it('should set response', async () => {
+        fetchMock.get(
+            'Companies',
+            emptyResponse,
+            {
+                method: 'GET',
+                overwriteRoutes: false
+            }
+        );
+
+        const service = new LinqService();
+        const query = service.createQuery<Company>('Companies').withOptions({ includeResponse: true });
+
+        const r = await query.toArrayAsync();
+        expect(r).property('$response').not.null;
+
+        fetchMock.restore();
+    });
+
+    it('should set inline count', async () => {
+        fetchMock.get(
+            'Companies',
+            {
+                headers: { 'X-Inline-Count': 42 },
+                body: {}
+            },
+            {
+                method: 'GET',
+                query: {
+                    "$inlineCount": "true",
+                },
+                overwriteRoutes: false
+            }
+        );
+
+        const service = new LinqService();
+        const query = service.createQuery<Company>('Companies').inlineCount();
+
+        const r = await query.toArrayAsync();
+        expect(r).property('$inlineCount').to.equal(42);
+
+        fetchMock.restore();
+    });
+
+    it('should not set response', async () => {
+        fetchMock.get(
+            'Companies',
+            {},
+            {
+                method: 'GET',
+                overwriteRoutes: false
+            }
+        );
+
+        const service = new LinqService();
+        const query = service.createQuery<Company>('Companies');
+
+        const r = await query.toArrayAsync();
+        expect(r).does.not.have.property('$response')
+
+        fetchMock.restore();
+    });
+
     it('should throw when timeout elapsed', async () => {
         fetchMock.get(
-            `Companies`,
-            emptyResponse,
-            { method: 'GET' }
+            'Companies',
+            new Promise((r, _) => setTimeout(() => r(emptyResponse), 10)),
+            { 
+                method: 'GET',
+                overwriteRoutes: false
+            }
         );
 
         const service = new CompanyService();
         const query = service.companies().withOptions({ timeout: 1 });
 
-        expect(query.toArrayAsync()).eventually.be.rejectedWith('Request timed out');
+        try {
+            await query.toArrayAsync();
+            expect.fail('Should have failed because of timeout');
+        }
+        catch (e) {
+            expect(e).to.has.property('message', 'Request timed out');
+        }
+
+        fetchMock.restore();
     });
 });
