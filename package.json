@@ -1,6 +1,6 @@
 {
   "name": "linquest",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Remote Linq implementation with Jinqu infrastructure",
   "main": "dist/index.js",
   "keywords": [
