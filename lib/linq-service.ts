@@ -13,7 +13,7 @@ export class LinqService<TAttachedInfo = FetchAttachedInfo, TAjaxProvider extend
 
     request<TResult>(params: QueryParameter[], options: LinqOptions[]): PromiseLike<TResult> {
         const d = Object.assign({}, LinqService.defaultOptions);
-        const o = (options || []).reduce(this.mergeLinqOptions, d);
+        const o = (options || []).reduce(mergeLinqOptions, d);
         if (this.baseAddress) {
             if (this.baseAddress[this.baseAddress.length - 1] !== '/' && o.url && o.url[0] !== '/') {
                 o.url = '/' + o.url;
@@ -28,10 +28,11 @@ export class LinqService<TAttachedInfo = FetchAttachedInfo, TAjaxProvider extend
     createQuery<T>(url: string) {
         return new LinqQueryProvider<LinqOptions, TAttachedInfo>(this).createQuery<T>().withOptions({ url });
     }
+}
 
-    mergeLinqOptions(o1: LinqOptions, o2: LinqOptions): LinqOptions {
-        const o: LinqOptions = mergeAjaxOptions(o1, o2);
-        o.pascalize = o2.pascalize != null ? o2.pascalize : o1.pascalize;
-        return o;
-    }
+export function mergeLinqOptions(o1: LinqOptions, o2: LinqOptions): LinqOptions {
+    const o: LinqOptions = mergeAjaxOptions(o1, o2);
+    o.pascalize = o2.pascalize != null ? o2.pascalize : o1.pascalize;
+    o.includeResponse = o2.includeResponse != null ? o2.includeResponse : o1.includeResponse;
+    return o;
 }
