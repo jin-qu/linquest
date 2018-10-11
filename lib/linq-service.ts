@@ -1,7 +1,7 @@
 import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions } from "jinqu";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { LinqOptions } from "./linq-query";
-import { FetchAjaxProvider, FetchAttachedInfo } from "./fetch-request-provider";
+import { FetchAjaxProvider, FetchAttachedInfo } from "./fetch-ajax-provider";
 
 export class LinqService<TAttachedInfo = FetchAttachedInfo, TAjaxProvider extends IAjaxProvider<TAttachedInfo> = FetchAjaxProvider> 
     implements IRequestProvider<LinqOptions, TAttachedInfo> {

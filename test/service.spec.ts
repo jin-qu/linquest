@@ -39,13 +39,16 @@ describe('Service tests', () => {
 
     it('should create where query parameter', () => {
         const query = service.companies()
+            .setParameter('id', '42')
             .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== 'Netflix')));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider.options.params).to.have.length(1);
+        expect(provider.options.params).to.have.length(2);
         expect(provider.options.params[0].key).to.equal('$where');
         expect(provider.options.params[0].value)
             .to.contain(`c => !c.deleted && ((c.id < 3 && c.name == "Netflix") || (c.id >= 3 && c.name != "Netflix"))`);
+        expect(provider.options.params[1].key).to.equal('id');
+        expect(provider.options.params[1].value).to.equal('42');
     });
 
     it('should create where with contains method', () => {

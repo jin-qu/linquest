@@ -7,7 +7,7 @@ import {
 } from 'jokenizer';
 import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider } from "jinqu";
 import { LinqQuery, LinqOptions } from "./linq-query";
-import { FetchAttachedInfo } from './fetch-request-provider';
+import { FetchAttachedInfo } from './fetch-ajax-provider';
 
 export class LinqQueryProvider<TOptions extends LinqOptions, TAttachedInfo = FetchAttachedInfo> implements IQueryProvider {
 
