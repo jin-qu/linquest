@@ -3,7 +3,7 @@ import 'mocha';
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
 import { QueryPart } from 'jinqu';
-import { LinqQueryProvider, LinqService, LinqOptions } from '..';
+import { LinqQueryProvider, LinqService, QueryOptions } from '..';
 import { CompanyService, MockRequestProvider } from './fixture';
 
 chai.use(chaiAsPromised);
@@ -129,7 +129,7 @@ describe('Service tests', () => {
     });
 
     it('should pascalize member names', () => {
-        const options: LinqOptions = { pascalize: true };
+        const options: QueryOptions = { pascalize: true };
         const query = service.companies()
             .withOptions(options)
             .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== 'Netflix')));

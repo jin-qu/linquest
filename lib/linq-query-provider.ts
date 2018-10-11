@@ -6,10 +6,10 @@ import {
     CallExpression, TernaryExpression
 } from 'jokenizer';
 import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider } from "jinqu";
-import { LinqQuery, LinqOptions } from "./linq-query";
+import { LinqQuery, QueryOptions } from "./linq-query";
 import { FetchAttachedInfo } from './fetch-ajax-provider';
 
-export class LinqQueryProvider<TOptions extends LinqOptions, TAttachedInfo = FetchAttachedInfo> implements IQueryProvider {
+export class LinqQueryProvider<TOptions extends QueryOptions, TAttachedInfo = FetchAttachedInfo> implements IQueryProvider {
 
     constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
