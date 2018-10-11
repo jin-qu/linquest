@@ -44,25 +44,6 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
-    it('should set response', async () => {
-        fetchMock.get(
-            'Companies',
-            emptyResponse,
-            {
-                method: 'GET',
-                overwriteRoutes: false
-            }
-        );
-
-        const service = new LinqService();
-        const query = service.createQuery<Company>('Companies').withOptions({ includeResponse: true });
-
-        const r = await query.toArrayAsync();
-        expect(r).property('$response').not.null;
-
-        fetchMock.restore();
-    });
-
     it('should set inline count', async () => {
         fetchMock.get(
             'Companies',
@@ -106,25 +87,6 @@ describe('Fetch tests', () => {
 
         const r = await query.toArrayAsync();
         expect(r).to.not.have.property('$inlineCount');
-
-        fetchMock.restore();
-    });
-
-    it('should not set response', async () => {
-        fetchMock.get(
-            'Companies',
-            {},
-            {
-                method: 'GET',
-                overwriteRoutes: false
-            }
-        );
-
-        const service = new LinqService();
-        const query = service.createQuery<Company>('Companies');
-
-        const r = await query.toArrayAsync();
-        expect(r).does.not.have.property('$response');
 
         fetchMock.restore();
     });

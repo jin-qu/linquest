@@ -1,6 +1,6 @@
 import { IAjaxProvider, AjaxOptions, mergeAjaxOptions } from "jinqu";
 
-export class FetchAjaxProvider implements IAjaxProvider<FetchAttachedInfo> {
+export class FetchAjaxProvider implements IAjaxProvider {
 
     static readonly defaultOptions: AjaxOptions = {
         method: 'GET',
@@ -19,9 +19,6 @@ export class FetchAjaxProvider implements IAjaxProvider<FetchAttachedInfo> {
                 return response.json()
                     .then(data => {
                         if (data != null) {
-                            if (o.includeResponse === true) {
-                                data.$response = response;
-                            }
                             const ic = response.headers.get('X-Inline-Count');
                             if (ic != null) {
                                 data.$inlineCount = Number(ic);
@@ -52,8 +49,4 @@ export function createRequest(o: AjaxOptions) {
         headers: o.headers,
         method: o.method
     };
-}
-
-export interface FetchAttachedInfo {
-    $response?: Response;
 }

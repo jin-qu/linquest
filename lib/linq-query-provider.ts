@@ -7,24 +7,23 @@ import {
 } from 'jokenizer';
 import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider } from "jinqu";
 import { LinqQuery, QueryOptions } from "./linq-query";
-import { FetchAttachedInfo } from './fetch-ajax-provider';
 
-export class LinqQueryProvider<TOptions extends QueryOptions, TAttachedInfo = FetchAttachedInfo> implements IQueryProvider {
+export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryProvider {
 
     constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
 
     pascalize: boolean;
 
-    createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TAttachedInfo> {
-        return new LinqQuery<T, TOptions, TAttachedInfo>(this, parts);
+    createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions> {
+        return new LinqQuery<T, TOptions>(this, parts);
     }
 
-    execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult & TAttachedInfo {
+    execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult {
         throw new Error('Synchronous execution is not supported');
     }
 
-    executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult & TAttachedInfo> {
+    executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
         const ps: IQueryPart[] = [];
         const os: TOptions[] = [];
 
@@ -43,7 +42,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TAttachedInfo = Fe
             }
         }
 
-        return this.requestProvider.request<TResult & TAttachedInfo>(ps.map(p => this.handlePart(p)), os);
+        return this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
     }
 
     executeAsyncIterator<TResult = any>(parts: IQueryPart[]): AsyncIterator<TResult> {

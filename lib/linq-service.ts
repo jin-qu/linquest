@@ -1,11 +1,11 @@
 import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions } from "jinqu";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { QueryOptions } from "./linq-query";
-import { FetchAjaxProvider, FetchAttachedInfo } from "./fetch-ajax-provider";
+import { FetchAjaxProvider } from "./fetch-ajax-provider";
 
-export class LinqService<TAttachedInfo = FetchAttachedInfo> implements IRequestProvider<QueryOptions, TAttachedInfo> {
+export class LinqService implements IRequestProvider<QueryOptions> {
 
-    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider<TAttachedInfo> = new FetchAjaxProvider()) {
+    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchAjaxProvider()) {
     }
 
     static readonly defaultOptions: QueryOptions = {};
@@ -25,13 +25,12 @@ export class LinqService<TAttachedInfo = FetchAttachedInfo> implements IRequestP
     }
 
     createQuery<T>(url: string) {
-        return new LinqQueryProvider<QueryOptions, TAttachedInfo>(this).createQuery<T>().withOptions({ url });
+        return new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url });
     }
 }
 
 export function mergeQueryOptions(o1: QueryOptions, o2: QueryOptions): QueryOptions {
     const o: QueryOptions = mergeAjaxOptions(o1, o2);
     o.pascalize = o2.pascalize != null ? o2.pascalize : o1.pascalize;
-    o.includeResponse = o2.includeResponse != null ? o2.includeResponse : o1.includeResponse;
     return o;
 }
