@@ -1,13 +1,12 @@
-import { expect } from 'chai';
 import 'mocha';
-import { Company, CompanyService } from './fixture';
-
+import { expect } from 'chai';
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised)
-
 import fetchMock = require('fetch-mock');
+import { Company, CompanyService } from './fixture';
 import { LinqService } from '../lib/linq-service';
+
+chai.use(chaiAsPromised)
 const emptyResponse = {};
 
 describe('Fetch tests', () => {
