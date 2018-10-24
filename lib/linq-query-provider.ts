@@ -45,10 +45,6 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
         return this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
     }
 
-    executeAsyncIterator<TResult = any>(parts: IQueryPart[]): AsyncIterator<TResult> {
-        throw new Error("Method not implemented.");
-    }
-
     handlePart(part: IQueryPart): QueryParameter {
         const args = part.args.map(a =>
             a.literal != null || a.exp == null

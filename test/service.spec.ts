@@ -145,11 +145,6 @@ describe('Service tests', () => {
         expect(() => service.companies().toArray()).to.throw();
     });
 
-    it('should throw when async iterator called', () => {
-        const query = service.companies().where(c => c.id == 1)
-        expect(() => new LinqQueryProvider(service).executeAsyncIterator(query.parts)).to.throw();
-    });
-
     it('should throw for unknown expression', () => {
         const invalidPart = new QueryPart('NONE', [<any>{ exp: { type: 'NONE' } }]);
         expect(() => new LinqQueryProvider(service).handlePart(invalidPart)).to.throw();
