@@ -51,7 +51,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
 
     handlePart(part: IQueryPart): QueryParameter {
         const args = part.args.map(a =>
-            a.literal != null
+            a.literal != null || a.exp == null
                 ? a.literal
                 : this.expToStr(a.exp, a.scopes, a.exp.type === ExpressionType.Func ? (a.exp as FuncExpression).parameters : [])
         ).join(';');
