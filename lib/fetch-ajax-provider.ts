@@ -45,7 +45,7 @@ export function createRequest(o: AjaxOptions) {
     o = mergeAjaxOptions(d, o);
 
     return <RequestInit>{
-        body: o.data,
+        body: JSON.stringify(o.data),
         headers: o.headers,
         method: o.method
     };
