@@ -73,4 +73,4 @@ const result = await query.toArrayAsync();
 ```
 
 # License
-Jinqu is under the [MIT License](LICENSE).
+Linquest is under the [MIT License](LICENSE).
