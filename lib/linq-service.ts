@@ -1,11 +1,11 @@
 import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions } from "jinqu";
+import { FetchProvider } from "jinqu-fetch";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { QueryOptions } from "./linq-query";
-import { FetchAjaxProvider } from "./fetch-ajax-provider";
 
 export class LinqService implements IRequestProvider<QueryOptions> {
 
-    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchAjaxProvider()) {
+    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchProvider()) {
     }
 
     static readonly defaultOptions: QueryOptions = {};

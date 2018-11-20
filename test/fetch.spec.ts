@@ -47,7 +47,7 @@ describe('Fetch tests', () => {
         fetchMock.get(
             'Companies',
             {
-                headers: { 'X-Inline-Count': 42 },
+                headers: { 'X-InlineCount': 42 },
                 body: {}
             },
             {
