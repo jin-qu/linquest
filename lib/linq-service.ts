@@ -1,7 +1,7 @@
-import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions } from "jinqu";
+import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions, Ctor } from "jinqu";
 import { FetchProvider } from "jinqu-fetch";
 import { LinqQueryProvider } from "./linq-query-provider";
-import { QueryOptions } from "./linq-query";
+import { QueryOptions, LinqQuery } from "./linq-query";
 
 export class LinqService implements IRequestProvider<QueryOptions> {
 
@@ -24,8 +24,9 @@ export class LinqService implements IRequestProvider<QueryOptions> {
         return this.ajaxProvider.ajax(o);
     }
 
-    createQuery<T>(url: string) {
-        return new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url });
+    createQuery<T>(url: string, ctor?: Ctor<T>): LinqQuery<T> {
+        const query = new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url });
+        return ctor ? <LinqQuery<T>>query.cast(ctor) : query;
     }
 }
 

@@ -1,3 +1,4 @@
+import { plainToClass } from 'class-transformer';
 import {
     ExpressionType, Expression,
     LiteralExpression, VariableExpression, UnaryExpression,
@@ -5,7 +6,7 @@ import {
     BinaryExpression, MemberExpression, IndexerExpression, FuncExpression,
     CallExpression, TernaryExpression
 } from 'jokenizer';
-import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider } from "jinqu";
+import { IQueryProvider, IQueryPart, QueryParameter, AjaxFuncs, IRequestProvider, Ctor, QueryFunc } from "jinqu";
 import { LinqQuery, QueryOptions } from "./linq-query";
 
 export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryProvider {
@@ -26,6 +27,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
     executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
         const ps: IQueryPart[] = [];
         const os: TOptions[] = [];
+        let ctor: Ctor<any>;
 
         for (let p of parts) {
             if (!p.args.length) continue;
@@ -37,12 +39,18 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
                 if (o && o.pascalize != null) {
                     this.pascalize = o.pascalize;
                 }
+            } 
+            else if (p.type === QueryFunc.cast) {
+                ctor = p.args[0].literal;
             } else {
                 ps.push(p);
             }
         }
 
-        return this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
+        const query = this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
+        return ctor
+            ? query.then(d => plainToClass(ctor, d))
+            : query;
     }
 
     handlePart(part: IQueryPart): QueryParameter {

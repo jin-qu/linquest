@@ -4,7 +4,7 @@ import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
 import { QueryPart } from 'jinqu';
 import { LinqQueryProvider, LinqService, QueryOptions } from '..';
-import { CompanyService, MockRequestProvider } from './fixture';
+import { CompanyService, MockRequestProvider, Company, getCompanies, ICompany } from './fixture';
 
 chai.use(chaiAsPromised);
 
@@ -120,12 +120,43 @@ describe('Service tests', () => {
     });
 
     it('should create include', () => {
-        const query = service.companies().include(c => c.address);
+        const query = service.companies()
+            .include(c => c.addresses)
+                .thenInclude(a => a.city);
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider.options.params).to.have.length(1);
+        expect(provider.options.params).to.have.length(2);
         expect(provider.options.params[0].key).to.equal('$include');
         expect(provider.options.params[0].value).to.contain(`c => c.address`);
+        expect(provider.options.params[1].key).to.equal('$thenInclude');
+        expect(provider.options.params[1].value).to.contain(`a => a.city`);
+    });
+
+    it('should handle cast 1', async () => {
+        const prv = new MockRequestProvider(getCompanies());
+        const svc = new LinqService('', prv);
+        const result = await svc.createQuery<ICompany>('companies').cast(Company).toArrayAsync();
+
+        expect(prv.options.params).to.have.length(0);
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
+    });
+
+    it('should handle cast 2', async () => {
+        const prv = new MockRequestProvider(getCompanies());
+        const svc = new LinqService('', prv);
+        const result = await svc.createQuery<ICompany>('companies', Company).toArrayAsync();
+
+        expect(prv.options.params).to.have.length(0);
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
+    });
+
+    it('should handle cast 3', async () => {
+        const prv = new MockRequestProvider(getCompanies());
+        const svc = new LinqService('', prv);
+        const result = await svc.createQuery<ICompany>('companies').toArrayAsync(Company);
+
+        expect(prv.options.params).to.have.length(0);
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
     it('should pascalize member names', () => {
