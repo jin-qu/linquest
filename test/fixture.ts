@@ -15,13 +15,11 @@ export class MockRequestProvider implements IAjaxProvider {
     }
 }
 
-export interface ICountry {
+export class Country implements ICountry {
     name: string;
 }
 
-export class Country {
-    name: string;
-}
+export interface ICountry extends Country { }
 
 export class City {
     name: string;
@@ -34,14 +32,6 @@ export class Address {
     city: City;
 }
 
-export interface ICompany {
-    id: number;
-    name: string;
-    deleted: boolean;
-    createDate: Date;
-    addresses: Address[];
-}
-
 @linqResource('Companies') // this should override
 @linqResource('Company')
 export class Company implements ICompany {
@@ -51,6 +41,8 @@ export class Company implements ICompany {
     createDate: Date;
     addresses: Address[];
 }
+
+export interface ICompany extends Company { }
 
 export class CompanyService extends LinqService {
 
