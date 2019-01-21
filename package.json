@@ -44,7 +44,7 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "jinqu": "^0.5.1",
+    "jinqu": "^0.5.2",
     "jinqu-fetch": "^0.2.0",
     "jokenizer": "^0.2.6"
   }

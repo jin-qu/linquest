@@ -2,6 +2,7 @@ import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions, Ctor
 import { FetchProvider } from "jinqu-fetch";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { QueryOptions, LinqQuery } from "./linq-query";
+import { getResource } from './decorators';
 
 export class LinqService implements IRequestProvider<QueryOptions> {
 
@@ -24,8 +25,20 @@ export class LinqService implements IRequestProvider<QueryOptions> {
         return this.ajaxProvider.ajax(o);
     }
 
-    createQuery<T>(url: string, ctor?: Ctor<T>): LinqQuery<T> {
-        const query = new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url });
+    createQuery<T>(resource: string): LinqQuery<T>;
+    createQuery<T>(resource: string, ctor: Ctor<T>): LinqQuery<T>;
+    createQuery<T>(ctor: Ctor<T>): LinqQuery<T>;
+    createQuery<T>(resource: string | Ctor<T>, ctor?: Ctor<T>): LinqQuery<T> {
+        if (typeof resource === 'function') {
+            ctor = resource;
+            resource = getResource(ctor);
+            if (!resource) {
+                const r = /class (.*?)\s|\{|function (.*?)[\s|\(]/.exec(ctor.toString());
+                resource = r[1] || r[2];
+            }
+        }
+
+        const query = new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url: resource });
         return ctor ? <LinqQuery<T>>query.cast(ctor) : query;
     }
 }

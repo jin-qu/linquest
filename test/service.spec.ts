@@ -4,7 +4,7 @@ import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
 import { QueryPart } from 'jinqu';
 import { LinqQueryProvider, LinqService, QueryOptions } from '..';
-import { CompanyService, MockRequestProvider, Company, getCompanies, ICompany } from './fixture';
+import { CompanyService, MockRequestProvider, Company, getCompanies, ICompany, ICountry, Country } from './fixture';
 
 chai.use(chaiAsPromised);
 
@@ -132,31 +132,56 @@ describe('Service tests', () => {
         expect(provider.options.params[1].value).to.contain(`a => a.city`);
     });
 
-    it('should handle cast 1', async () => {
+    it('should handle cast', async () => {
         const prv = new MockRequestProvider(getCompanies());
         const svc = new LinqService('', prv);
         const result = await svc.createQuery<ICompany>('companies').cast(Company).toArrayAsync();
 
-        expect(prv.options.params).to.have.length(0);
         result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
-    it('should handle cast 2', async () => {
+    it('should handle cast via createQuery', async () => {
         const prv = new MockRequestProvider(getCompanies());
         const svc = new LinqService('', prv);
         const result = await svc.createQuery<ICompany>('companies', Company).toArrayAsync();
 
-        expect(prv.options.params).to.have.length(0);
         result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
-    it('should handle cast 3', async () => {
+    it('should handle cast via createQuery with decorator', async () => {
         const prv = new MockRequestProvider(getCompanies());
         const svc = new LinqService('', prv);
-        const result = await svc.createQuery<ICompany>('companies').toArrayAsync(Company);
+        const result = await svc.createQuery<ICompany>(Company).toArrayAsync();
 
-        expect(prv.options.params).to.have.length(0);
+        expect(prv.options.url).equal('Companies');
         result.forEach(c => expect(c).to.be.instanceOf(Company));
+    });
+
+    it('should handle cast via createQuery without decorator', async () => {
+        const prv = new MockRequestProvider(getCompanies());
+        const svc = new LinqService('', prv);
+        const result = await svc.createQuery<ICountry>(Country).toArrayAsync();
+
+        expect(prv.options.url).equal('Country');
+        result.forEach(r => expect(r).to.be.instanceOf(Country));
+    });
+
+    it('should handle cast via toArrayAsync', async () => {
+        const prv = new MockRequestProvider(getCompanies());
+        const svc = new LinqService('', prv);
+        const result = await svc.createQuery<ICompany>('Companies').toArrayAsync(Company);
+
+        result.forEach(r => expect(r).to.be.instanceOf(Company));
+    });
+
+    it('should handle cast for nested values', async () => {
+        const data = getCompanies().map(c => ({ company: c }));
+        const prv = new MockRequestProvider(data);
+        const svc = new LinqService('', prv);
+        const query = svc.createQuery<{ company: ICompany }>('Companies');
+        const result = await query.select<ICompany>(d => d.company, Company).toArrayAsync();
+
+        result.forEach(r => expect(r).to.be.instanceOf(Company));
     });
 
     it('should pascalize member names', () => {

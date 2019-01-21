@@ -1,5 +1,6 @@
 import { AjaxOptions, IAjaxProvider } from 'jinqu';
 import { LinqService } from '..';
+import { linqResource } from '../lib/decorators';
 
 export class MockRequestProvider implements IAjaxProvider {
 
@@ -14,10 +15,19 @@ export class MockRequestProvider implements IAjaxProvider {
     }
 }
 
+export interface ICountry {
+    name: string;
+}
+
+export class Country {
+    name: string;
+}
+
 export class City {
     name: string;
 }
 
+@linqResource('Addresses')
 export class Address {
     id: number;
     text: string;
@@ -32,6 +42,8 @@ export interface ICompany {
     addresses: Address[];
 }
 
+@linqResource('Companies') // this should override
+@linqResource('Company')
 export class Company implements ICompany {
     id: number;    
     name: string;
@@ -49,6 +61,13 @@ export class CompanyService extends LinqService {
     companies() {
         return this.createQuery<ICompany>('Companies');
     }
+}
+
+export function getCountries(): ICountry[] {
+    return [
+        { name: 'Uganda' },
+        { name: 'Nauru' }
+    ];
 }
 
 export function getCompanies(): ICompany[] {
