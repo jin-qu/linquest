@@ -4,6 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/jin-qu/linquest/badge.svg?branch=master)](https://coveralls.io/github/jin-qu/linquest?branch=master)	
 [![npm version](https://badge.fury.io/js/linquest.svg)](https://badge.fury.io/js/linquest)	
 <a href="https://snyk.io/test/npm/linquest"><img src="https://snyk.io/test/npm/linquest/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/npm/linquest" style="max-width:100%;"></a>
+[![GitHub issues](https://img.shields.io/github/issues/jin-qu/linquest.svg)](https://github.com/jin-qu/linquest/issues)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/jin-qu/linquest/master/LICENSE)
+
+[![GitHub stars](https://img.shields.io/github/stars/jin-qu/linquest.svg?style=social&label=Star)](https://github.com/jin-qu/linquest)
+[![GitHub forks](https://img.shields.io/github/forks/jin-qu/linquest.svg?style=social&label=Fork)](https://github.com/jin-qu/linquest)
 
 Written completely in TypeScript.
 
