@@ -1,6 +1,6 @@
 {
   "name": "linquest",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Remote Linq implementation with Jinqu infrastructure",
   "main": "dist/index.js",
   "keywords": [
@@ -23,7 +23,7 @@
     "test": "mocha --opts mocha.opts --reporter spec",
     "cover": "nyc --reporter text-summary mocha --opts mocha.opts --reporter spec",
     "coveralls": "nyc mocha --opts mocha.opts && nyc report --reporter=text-lcov --opts mocha.opts | coveralls",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "vscode:prepublish": "npm run build"
   },
   "author": "Umut Özel",
@@ -46,8 +46,8 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "jinqu": "^0.5.2",
-    "jinqu-fetch": "^0.2.0",
+    "jinqu": "^0.6.0",
+    "jinqu-fetch": "^0.3.0",
     "jokenizer": "^0.2.6"
   }
 }
