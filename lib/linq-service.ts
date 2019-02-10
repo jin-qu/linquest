@@ -1,17 +1,23 @@
-import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions, Ctor } from "jinqu";
+import { IRequestProvider, IAjaxProvider, QueryParameter, mergeAjaxOptions, Ctor, Result, QueryFunc, AjaxFuncs } from "jinqu";
 import { FetchProvider } from "jinqu-fetch";
 import { LinqQueryProvider } from "./linq-query-provider";
 import { QueryOptions, LinqQuery } from "./linq-query";
 import { getResource } from './decorators';
 
-export class LinqService implements IRequestProvider<QueryOptions> {
+export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions> {
 
-    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider = new FetchProvider()) {
+    constructor(private readonly baseAddress = '', private readonly ajaxProvider: IAjaxProvider<TResponse> = <any>new FetchProvider()) {
     }
 
     static readonly defaultOptions: QueryOptions = {};
 
-    request<TResult>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<TResult> {
+    request<T, TExtra>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<Result<T, TExtra>> {
+        params = params || [];
+        const inlineCountEnabled = params.find(p => p.key === '$' + QueryFunc.inlineCount);
+        const l1 = params.length;
+        params = params.filter(p => p.key !== '$' + AjaxFuncs.includeResponse);
+        const includeResponse = l1 !== params.length;
+
         const d = Object.assign({}, LinqService.defaultOptions);
         const o = (options || []).reduce(mergeQueryOptions, d);
         if (this.baseAddress) {
@@ -20,9 +26,25 @@ export class LinqService implements IRequestProvider<QueryOptions> {
             }
             o.url = this.baseAddress + (o.url || '');
         }
-        o.params = (params || []).concat(o.params || []);
+        o.params = params.concat(o.params || []);
 
-        return this.ajaxProvider.ajax(o);
+        const p = this.ajaxProvider.ajax<T>(o);
+
+        return <any>p.then(r => {
+            let value = <any>r.value;
+            if (value && value.d !== void 0) {
+                value = value.d;
+            }
+
+            if (!inlineCountEnabled && !includeResponse)
+                return value;
+
+            return { 
+                value: value,
+                inlineCount: inlineCountEnabled ? Number(r.value && r.value['inlineCount']) : void 0,
+                response: includeResponse ? r.response : void 0
+            };
+        });
     }
 
     createQuery<T>(resource: string): LinqQuery<T>;

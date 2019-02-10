@@ -7,7 +7,7 @@ import { Company, CompanyService } from './fixture';
 import { LinqService } from '../lib/linq-service';
 
 chai.use(chaiAsPromised)
-const emptyResponse = {};
+const emptyResponse = { d: {} };
 
 describe('Fetch tests', () => {
 
@@ -35,7 +35,7 @@ describe('Fetch tests', () => {
             .take(10);
 
         const r = await query.toArrayAsync();
-        expect(r).deep.equal(emptyResponse);
+        expect(r).deep.equal(emptyResponse.d);
 
         const options = fetchMock.lastOptions();
         expect(options.method).to.equal('GET');
@@ -47,8 +47,8 @@ describe('Fetch tests', () => {
         fetchMock.get(
             'Companies',
             {
-                headers: { 'X-InlineCount': 42 },
-                body: {}
+                d: [],
+                inlineCount: 42
             },
             {
                 method: 'GET',
@@ -63,15 +63,18 @@ describe('Fetch tests', () => {
         const query = service.createQuery<Company>('Companies').inlineCount();
 
         const r = await query.toArrayAsync();
-        expect(r).property('$inlineCount').to.equal(42);
+        expect(r.value).to.be.empty;
+        expect(r.inlineCount).to.equal(42);
 
         fetchMock.restore();
     });
 
-    it('should not set inline count', async () => {
+    it('should fail to set inline count', async () => {
         fetchMock.get(
             'Companies',
-            {},
+            {
+                d: []
+            },
             {
                 method: 'GET',
                 query: {
@@ -85,7 +88,29 @@ describe('Fetch tests', () => {
         const query = service.createQuery<Company>('Companies').inlineCount();
 
         const r = await query.toArrayAsync();
-        expect(r).to.not.have.property('$inlineCount');
+        expect(r.inlineCount).to.be.NaN;
+
+        fetchMock.restore();
+    });
+
+    it('should include response', async () => {
+        fetchMock.get(
+            'Companies',
+            {
+                d: []
+            },
+            {
+                method: 'GET',
+                overwriteRoutes: false
+            }
+        );
+
+        const service = new LinqService();
+        const query = service.createQuery<Company>('Companies').includeResponse();
+
+        const r = await query.toArrayAsync();
+        expect(r.value).to.have.length(0);
+        expect(r.response).to.not.null;
 
         fetchMock.restore();
     });
@@ -94,7 +119,7 @@ describe('Fetch tests', () => {
         fetchMock.get(
             'Companies',
             {
-                body: 'null'
+                d: null
             },
             {
                 method: 'GET',

@@ -30,7 +30,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
         let ctor: Ctor<any>;
 
         for (let p of parts) {
-            if (!p.args.length) continue;
+            if (p.type === QueryFunc.toArray) continue;
 
             if (p.type === AjaxFuncs.options) {
                 const o: TOptions = p.args[0].literal;
