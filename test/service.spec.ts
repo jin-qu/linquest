@@ -3,7 +3,7 @@ import 'mocha';
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
 import { QueryPart } from 'jinqu';
-import { LinqQueryProvider, LinqService, QueryOptions } from '..';
+import { LinqQueryProvider, LinqService, QueryOptions } from '../index';
 import { CompanyService, MockRequestProvider, Company, getCompanies, ICompany, ICountry, Country } from './fixture';
 
 chai.use(chaiAsPromised);

@@ -1,6 +1,5 @@
 import { AjaxOptions, IAjaxProvider, Value, AjaxResponse } from 'jinqu';
-import { LinqService } from '..';
-import { linqResource } from '../lib/decorators';
+import { LinqService, linqResource } from '../index';
 
 export class MockRequestProvider implements IAjaxProvider<Response> {
 

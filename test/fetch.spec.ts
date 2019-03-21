@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import chai = require('chai');
 import chaiAsPromised = require('chai-as-promised');
 import fetchMock = require('fetch-mock');
+import { LinqService } from '../index';
 import { Company, CompanyService } from './fixture';
-import { LinqService } from '../lib/linq-service';
 
 chai.use(chaiAsPromised)
 const emptyResponse = { d: {} };
