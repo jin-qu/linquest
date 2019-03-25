@@ -7,7 +7,13 @@ const webpackConfig = {
     mode: "development",
     stats: 'errors-only',
     devtool: "inline-source-map",
-    entry: ["./test/init.js", "./test/fetch.spec.ts", "./test/inline-funcs.spec.ts", "./test/service.spec.ts", "./test/run.js"],
+    entry: [
+        "./browser/init.js",
+        "./test/fetch.spec.ts",
+        "./test/inline-funcs.spec.ts",
+        "./test/service.spec.ts",
+        "./browser/run.js"
+    ],
     output: {
         filename: "bundle.js"
     },
@@ -22,7 +28,7 @@ const webpackConfig = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: 'test/index.html'
+            template: './browser/index.html'
         })
     ],
     node: {
@@ -38,20 +44,14 @@ const devServer = new WebpackDevServer(webpack(webpackConfig), {
 
 devServer.listen(8080, '127.0.0.1', e => {
 
-    // const chromeOptions = {
-    //     file: 'http://localhost:8080',
-    //     timeout: 120000,
-    //     reporter: 'nyan',
-    //     args: ['no-sandbox']
-    // }
+    const chromeOptions = {
+        file: 'http://localhost:8080',
+        timeout: 120000,
+        reporter: 'nyan',
+        args: ['no-sandbox']
+    }
 
-    // chromeRunner(chromeOptions)
-    //     .then(r => {
-    //         const s = r.result.stats
-    //         const diff = s.passes - s.tests
-    //         process.exit(diff)
-    //     })
-
+    chromeRunner(chromeOptions)
 }).on('error', e => {
     console.error(e.message)
     process.exit(-1)
