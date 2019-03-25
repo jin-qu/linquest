@@ -1,71 +1,74 @@
-import { AjaxOptions, IAjaxProvider, Value, AjaxResponse } from 'jinqu';
-import { LinqService, linqResource } from '../index';
+import { AjaxOptions, AjaxResponse, IAjaxProvider, Value } from "jinqu";
+import { linqResource, LinqService } from "../index";
+
+// tslint:disable:max-classes-per-file
 
 export class MockRequestProvider implements IAjaxProvider<Response> {
+    public options: AjaxOptions;
 
     constructor(private readonly result = null) {
     }
 
-    options: AjaxOptions;
-
-    ajax<T>(options: AjaxOptions): PromiseLike<Value<T> & AjaxResponse<Response>> {
+    public ajax<T>(options: AjaxOptions): PromiseLike<Value<T> & AjaxResponse<Response>> {
         this.options = options;
-        const response = <Response>{ body: this.result };
+        const response = { body: this.result } as Response;
         const result = { value: { d: this.result }, response };
-        return <any>Promise.resolve(result);
+        return Promise.resolve(result) as any;
     }
 }
 
 export class Country implements ICountry {
-    name: string;
+    public name: string;
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface ICountry extends Country { }
 
 export class City {
-    name: string;
+    public name: string;
 }
 
-@linqResource('Addresses')
+@linqResource("Addresses")
 export class Address {
-    id: number;
-    text: string;
-    city: City;
+    public id: number;
+    public text: string;
+    public city: City;
 }
 
-@linqResource('Companies') // this should override
-@linqResource('Company')
+@linqResource("Companies") // this should override
+@linqResource("Company")
 export class Company implements ICompany {
-    id: number;    
-    name: string;
-    deleted: boolean;
-    createDate: Date;
-    addresses: Address[];
+    public id: number;
+    public name: string;
+    public deleted: boolean;
+    public createDate: Date;
+    public addresses: Address[];
 }
 
+// tslint:disable-next-line:no-empty-interface
 export interface ICompany extends Company { }
 
 export class CompanyService extends LinqService {
 
     constructor(provider?: MockRequestProvider) {
-        super('', provider);
+        super("", provider);
     }
 
-    companies() {
-        return this.createQuery<ICompany>('Companies');
+    public companies() {
+        return this.createQuery<ICompany>("Companies");
     }
 }
 
 export function getCountries(): ICountry[] {
     return [
-        { name: 'Uganda' },
-        { name: 'Nauru' }
+        { name: "Uganda" },
+        { name: "Nauru" },
     ];
 }
 
 export function getCompanies(): ICompany[] {
     return [
-        { id: 1, name: 'Netflix', createDate: new Date(), deleted: false, addresses: [] },
-        { id: 2, name: 'Google', createDate: new Date(), deleted: false, addresses: [] }
+        { id: 1, name: "Netflix", createDate: new Date(), deleted: false, addresses: [] },
+        { id: 2, name: "Google", createDate: new Date(), deleted: false, addresses: [] },
     ];
-};
+}

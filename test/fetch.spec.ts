@@ -1,36 +1,37 @@
-import 'mocha';
-import { expect } from 'chai';
-import chai = require('chai');
-import chaiAsPromised = require('chai-as-promised');
-import fetchMock = require('fetch-mock');
-import { LinqService } from '../index';
-import { Company, CompanyService } from './fixture';
+import { expect } from "chai";
+import chai = require("chai");
+import chaiAsPromised = require("chai-as-promised");
+import fetchMock = require("fetch-mock");
+import "mocha";
+import { LinqService } from "../index";
+import { Company, CompanyService } from "./fixture";
 
-chai.use(chaiAsPromised)
+chai.use(chaiAsPromised);
 const emptyResponse = { d: {} };
 
-describe('Fetch tests', () => {
+// tslint:disable:no-unused-expression
+describe("Fetch tests", () => {
 
-    it('should set url', async () => {
+    it("should set url", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             emptyResponse,
             {
-                method: 'GET',
+                method: "GET",
+                overwriteRoutes: false,
                 query: {
-                    "$where": "o => o.id > 5",
-                    "$orderBy": "o => o.id",
-                    "$skip": "10",
-                    "$take": "10"
+                    $orderBy: "o => o.id",
+                    $skip: "10",
+                    $take: "10",
+                    $where: "o => o.id > 5",
                 },
-                overwriteRoutes: false
-            }
+            },
         );
 
         const service = new LinqService();
-        const query = service.createQuery<Company>('Companies')
-            .where(o => o.id > 5)
-            .orderBy(o => o.id)
+        const query = service.createQuery<Company>("Companies")
+            .where((o) => o.id > 5)
+            .orderBy((o) => o.id)
             .skip(10)
             .take(10);
 
@@ -38,29 +39,29 @@ describe('Fetch tests', () => {
         expect(r).deep.equal(emptyResponse.d);
 
         const options = fetchMock.lastOptions();
-        expect(options.method).to.equal('GET');
+        expect(options.method).to.equal("GET");
 
         fetchMock.restore();
     });
 
-    it('should set inline count', async () => {
+    it("should set inline count", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             {
                 d: [],
-                inlineCount: 42
+                inlineCount: 42,
             },
             {
-                method: 'GET',
+                method: "GET",
+                overwriteRoutes: false,
                 query: {
-                    "$inlineCount": "true",
+                    $inlineCount: "true",
                 },
-                overwriteRoutes: false
-            }
+            },
         );
 
         const service = new LinqService();
-        const query = service.createQuery<Company>('Companies').inlineCount();
+        const query = service.createQuery<Company>("Companies").inlineCount();
 
         const r = await query.toArrayAsync();
         expect(r.value).to.be.empty;
@@ -69,23 +70,23 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
-    it('should fail to set inline count', async () => {
+    it("should fail to set inline count", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             {
-                d: []
+                d: [],
             },
             {
-                method: 'GET',
+                method: "GET",
+                overwriteRoutes: false,
                 query: {
-                    "$inlineCount": "true",
+                    $inlineCount: "true",
                 },
-                overwriteRoutes: false
-            }
+            },
         );
 
         const service = new LinqService();
-        const query = service.createQuery<Company>('Companies').inlineCount();
+        const query = service.createQuery<Company>("Companies").inlineCount();
 
         const r = await query.toArrayAsync();
         expect(r.inlineCount).to.be.NaN;
@@ -93,20 +94,20 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
-    it('should include response', async () => {
+    it("should include response", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             {
-                d: []
+                d: [],
             },
             {
-                method: 'GET',
-                overwriteRoutes: false
-            }
+                method: "GET",
+                overwriteRoutes: false,
+            },
         );
 
         const service = new LinqService();
-        const query = service.createQuery<Company>('Companies').includeResponse();
+        const query = service.createQuery<Company>("Companies").includeResponse();
 
         const r = await query.toArrayAsync();
         expect(r.value).to.have.length(0);
@@ -115,20 +116,20 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
-    it('should return null', async () => {
+    it("should return null", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             {
-                d: null
+                d: null,
             },
             {
-                method: 'GET',
-                overwriteRoutes: false
-            }
+                method: "GET",
+                overwriteRoutes: false,
+            },
         );
 
         const service = new LinqService();
-        const query = service.createQuery<Company>('Companies');
+        const query = service.createQuery<Company>("Companies");
 
         const r = await query.toArrayAsync();
         expect(r).to.be.null;
@@ -136,14 +137,14 @@ describe('Fetch tests', () => {
         fetchMock.restore();
     });
 
-    it('should throw when timeout elapsed', async () => {
+    it("should throw when timeout elapsed", async () => {
         fetchMock.get(
-            'Companies',
+            "Companies",
             new Promise((r, _) => setTimeout(() => r(emptyResponse), 10)),
-            { 
-                method: 'GET',
-                overwriteRoutes: false
-            }
+            {
+                method: "GET",
+                overwriteRoutes: false,
+            },
         );
 
         const service = new CompanyService();
@@ -151,10 +152,9 @@ describe('Fetch tests', () => {
 
         try {
             await query.toArrayAsync();
-            expect.fail('Should have failed because of timeout');
-        }
-        catch (e) {
-            expect(e).to.has.property('message', 'Request timed out');
+            expect.fail("Should have failed because of timeout");
+        } catch (e) {
+            expect(e).to.has.property("message", "Request timed out");
         }
 
         fetchMock.restore();
