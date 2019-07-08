@@ -2,6 +2,7 @@ import { expect } from "chai";
 import chai = require("chai");
 import chaiAsPromised = require("chai-as-promised");
 import { QueryPart } from "jinqu";
+import "jinqu-array-extensions";
 import "mocha";
 import { LinqQueryProvider, LinqService, QueryOptions } from "../index";
 import { Company, CompanyService, Country, getCompanies, ICompany, ICountry, MockRequestProvider } from "./fixture";
