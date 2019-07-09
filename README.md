@@ -79,7 +79,7 @@ const result = await query.toArrayAsync();
 
 ## Old Browsers
 
-jinqu-odata uses jinqu as a querying platform, if you want to use jinqu features with old browsers, please refer to [jinqu documentation](https://github.com/jin-qu/jinqu#readme).
+linquest uses jinqu as a querying platform, if you want to use jinqu features with old browsers, please refer to [jinqu documentation](https://github.com/jin-qu/jinqu#readme).
 
 ## License
 
