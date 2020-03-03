@@ -11,7 +11,7 @@ import { LinqQuery, QueryOptions } from "./linq-query";
 export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> implements IQueryProvider {
     public pascalize: boolean;
 
-    constructor(protected requestProvider: IRequestProvider<TOptions, TResponse>) {
+    constructor(protected requestProvider: IRequestProvider<TOptions>) {
     }
 
     public createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TResponse> {

@@ -7,7 +7,7 @@ import { getResource } from "./decorators";
 import { LinqQuery, QueryOptions } from "./linq-query";
 import { LinqQueryProvider } from "./linq-query-provider";
 
-export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions, TResponse> {
+export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions> {
     public static readonly defaultOptions: QueryOptions = {};
 
     constructor(
@@ -15,7 +15,7 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
         private readonly ajaxProvider: IAjaxProvider<TResponse> = new FetchProvider() as any) {
     }
 
-    public request<T, TExtra>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<Result<T, TExtra>> {
+    public request<T>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<T> {
         params = params || [];
         const inlineCountEnabled = params.find((p) => p.key === "$" + QueryFunc.inlineCount);
         const l1 = params.length;
