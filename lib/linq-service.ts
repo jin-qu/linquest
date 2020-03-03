@@ -7,7 +7,7 @@ import { getResource } from "./decorators";
 import { LinqQuery, QueryOptions } from "./linq-query";
 import { LinqQueryProvider } from "./linq-query-provider";
 
-export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions> {
+export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions, TResponse> {
     public static readonly defaultOptions: QueryOptions = {};
 
     constructor(
@@ -52,9 +52,9 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
         }) as any;
     }
 
-    public createQuery<T>(resource: string | Ctor<T>): LinqQuery<T>;
-    public createQuery<T>(resource: string, ctor: Ctor<T>): LinqQuery<T>;
-    public createQuery<T>(resource: string | Ctor<T>, ctor?: Ctor<T>): LinqQuery<T> {
+    public createQuery<T>(resource: string | Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
+    public createQuery<T>(resource: string, ctor: Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
+    public createQuery<T>(resource: string | Ctor<T>, ctor?: Ctor<T>): LinqQuery<T, QueryOptions, TResponse> {
         if (typeof resource === "function") {
             ctor = resource;
             resource = getResource(ctor);
@@ -64,8 +64,9 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
             }
         }
 
-        const query = new LinqQueryProvider<QueryOptions>(this).createQuery<T>().withOptions({ url: resource });
-        return ctor ? query.cast(ctor) as LinqQuery<T> : query;
+        const query = new LinqQueryProvider<QueryOptions, TResponse>(this)
+            .createQuery<T>().withOptions({ url: resource });
+        return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, {}> : query;
     }
 }
 

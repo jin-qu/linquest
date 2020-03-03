@@ -1,22 +1,21 @@
 import { plainToClass } from "class-transformer";
 import { AjaxFuncs, Ctor, IQueryPart, IQueryProvider, IRequestProvider, QueryFunc, QueryParameter } from "jinqu";
 import {
-    ArrayExpression, AssignExpression,
-    BinaryExpression, CallExpression, Expression,
+    ArrayExpression, BinaryExpression, CallExpression, Expression,
     ExpressionType, FuncExpression, GroupExpression, IndexerExpression,
     LiteralExpression, MemberExpression, ObjectExpression, TernaryExpression,
     UnaryExpression, VariableExpression,
 } from "jokenizer";
 import { LinqQuery, QueryOptions } from "./linq-query";
 
-export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryProvider {
+export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> implements IQueryProvider {
     public pascalize: boolean;
 
-    constructor(protected requestProvider: IRequestProvider<TOptions>) {
+    constructor(protected requestProvider: IRequestProvider<TOptions, TResponse>) {
     }
 
-    public createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions> {
-        return new LinqQuery<T, TOptions>(this, parts);
+    public createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TResponse> {
+        return new LinqQuery<T, TOptions, TResponse>(this, parts);
     }
 
     public execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult {
@@ -121,8 +120,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
 
     public objectToStr(exp: ObjectExpression, scopes: any[], parameters: string[]) {
         const assigns = exp.members.map((m) => {
-            const ae = m as AssignExpression;
-            return `${ae.name} = ${this.expToStr(ae.right, scopes, parameters)}`;
+            return `${m.name} = ${this.expToStr(m.right, scopes, parameters)}`;
         }).join(", ");
 
         return `new {${assigns}}`;
@@ -167,7 +165,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions> implements IQueryP
             : this.expToStr((callee as MemberExpression).owner, scopes, parameters) + ".";
 
         const func = callee.name;
-        const prmless = parmeterlessFuncs[func];
+        const prmless = parameterlessFuncs[func];
         if (prmless) {
             if (exp.args.length) {
                 throw new Error(`No argument expected for function ${func}`);
@@ -227,7 +225,7 @@ function getUnaryOp(op: string) {
     return op;
 }
 
-const parmeterlessFuncs = {
+const parameterlessFuncs = {
     getDay: "Day",
     getFullYear: "Year",
     getHours: "Hour",
