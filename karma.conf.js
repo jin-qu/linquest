@@ -1,6 +1,5 @@
-const browsers = process.platform === "win32" ?
-    ["ChromeHeadless", "FirefoxHeadless", "IE"] :
-    ["ChromeHeadless", "FirefoxHeadless"];
+const browsers =
+    process.platform === "win32" ? ["ChromeHeadless", "FirefoxHeadless", "IE"] : ["ChromeHeadless", "FirefoxHeadless"];
 
 module.exports = function (config) {
     config.set({
@@ -9,30 +8,26 @@ module.exports = function (config) {
         files: [
             "index.ts",
             {
-                pattern: "lib/**/*.ts"
+                pattern: "lib/**/*.ts",
             },
             {
-                pattern: "test/**/*.ts"
-            }
+                pattern: "test/**/*.ts",
+            },
         ],
 
         preprocessors: {
-            "**/*.ts": ["karma-typescript"]
+            "**/*.ts": ["karma-typescript"],
         },
 
         karmaTypescriptConfig: {
             tsconfig: "tsconfig.json",
-            include: [
-                "./index.ts",
-                "./lib/**/*.ts",
-                "./test/**/*.ts"
-            ]
+            include: ["./index.ts", "./lib/**/*.ts", "./test/**/*.ts"],
         },
 
         reporters: ["dots", "karma-typescript"],
 
         browsers,
 
-        singleRun: true
+        singleRun: true,
     });
 };
