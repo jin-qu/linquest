@@ -26,7 +26,7 @@
     "cover": "nyc --reporter text-summary mocha --reporter spec",
     "coveralls": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
     "karma": "karma start karma.conf.js",
-    "build": "rm -r dist | tsc",
+    "build": "tsc",
     "prepare": "npm run build"
   },
   "author": "Umut Özel",
