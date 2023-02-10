@@ -20,6 +20,6 @@ export function linqResource(resource: string) {
 }
 
 export function getResource(type: Ctor<any>) {
-    const existing = metadata.find((m) => m.type === type);
+    const existing = metadata.find(m => m.type === type);
     return (existing && existing.resource) || null;
 }

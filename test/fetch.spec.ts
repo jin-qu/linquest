@@ -30,8 +30,8 @@ describe("Fetch tests", () => {
 
         const service = new LinqService();
         const query = service.createQuery<Company>("Companies")
-            .where((o) => o.id > 5)
-            .orderBy((o) => o.id)
+            .where(o => o.id > 5)
+            .orderBy(o => o.id)
             .skip(10)
             .take(10);
 

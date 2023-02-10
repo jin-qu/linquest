@@ -13,7 +13,7 @@ describe("Inline function tests", () => {
     const service = new CompanyService(provider);
 
     it("should be able to call Math", () => {
-        const query = service.companies().where((c) => Math.floor(c.id) === 1);
+        const query = service.companies().where(c => Math.floor(c.id) === 1);
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -21,7 +21,7 @@ describe("Inline function tests", () => {
     });
 
     it("should be able to call Substring", () => {
-        const query = service.companies().where((c) => c.name.substr(1, 3) === "etf");
+        const query = service.companies().where(c => c.name.substr(1, 3) === "etf");
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -29,7 +29,7 @@ describe("Inline function tests", () => {
     });
 
     it("should be able to call Includes", () => {
-        const query = service.companies().where((c) => c.name.includes("flix"));
+        const query = service.companies().where(c => c.name.includes("flix"));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -45,7 +45,7 @@ describe("Inline function tests", () => {
     });
 
     it("should be able to call from VariableExpression", () => {
-        const query = service.companies().select((c) => c.name).select("toLowerCase()");
+        const query = service.companies().select(c => c.name).select("toLowerCase()");
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(2);
@@ -54,7 +54,7 @@ describe("Inline function tests", () => {
     });
 
     it("should throw for invalid arguments", () => {
-        const query = service.companies().select((c) => c.id.toString(42));
+        const query = service.companies().select(c => c.id.toString(42));
 
         expect(() => query.toArrayAsync()).to.throw();
     });

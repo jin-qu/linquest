@@ -42,7 +42,7 @@ describe("Service tests", () => {
     it("should create where query parameter", () => {
         const query = service.companies()
             .setParameter("id", "42")
-            .where((c) => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== "Netflix")));
+            .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== "Netflix")));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(2);
@@ -55,7 +55,7 @@ describe("Service tests", () => {
 
     it("should create where with contains method", () => {
         const query = service.companies()
-            .where((c) => [1, 2, 3].contains(c.id));
+            .where(c => [1, 2, 3].contains(c.id));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -65,7 +65,7 @@ describe("Service tests", () => {
 
     it("should create where with indexer access", () => {
         const query = service.companies()
-            .where((c) => c.name[0] === "N");
+            .where(c => c.name[0] === "N");
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -76,7 +76,7 @@ describe("Service tests", () => {
     it("should create where with Date filter", () => {
         const cd = new Date(1988, 2, 14);
         const query = service.companies()
-            .where((c) => c.createDate === cd, { cd });
+            .where(c => c.createDate === cd, { cd });
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -87,7 +87,7 @@ describe("Service tests", () => {
     it("should create where with null filter", () => {
         const cd = new Date(1988, 2, 14);
         const query = service.companies()
-            .where((c) => c.name === null);
+            .where(c => c.name === null);
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -96,7 +96,7 @@ describe("Service tests", () => {
     });
 
     it("should create select with new object", () => {
-        const query = service.companies().select((c) => ({ id: c.id, name: c.name }));
+        const query = service.companies().select(c => ({ id: c.id, name: c.name }));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -105,7 +105,7 @@ describe("Service tests", () => {
     });
 
     it("should create select with ternary", () => {
-        const query = service.companies().select((c) => c.id > 10 ? "BIG" : "SMALL");
+        const query = service.companies().select(c => c.id > 10 ? "BIG" : "SMALL");
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -114,7 +114,7 @@ describe("Service tests", () => {
     });
 
     it("should create groupBy query parameter", () => {
-        const query = service.companies().groupBy((c) => c.name, (_, g) => g.count());
+        const query = service.companies().groupBy(c => c.name, (_, g) => g.count());
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
@@ -123,8 +123,8 @@ describe("Service tests", () => {
 
     it("should create include", () => {
         const query = service.companies()
-            .include((c) => c.addresses)
-                .thenInclude((a) => a.city);
+            .include(c => c.addresses)
+                .thenInclude(a => a.city);
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(2);
@@ -139,7 +139,7 @@ describe("Service tests", () => {
         const svc = new LinqService("", prv);
         const result = await svc.createQuery<ICompany>("companies").cast(Company).toArrayAsync();
 
-        result.forEach((c) => expect(c).to.be.instanceOf(Company));
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
     it("should handle cast via createQuery", async () => {
@@ -147,7 +147,7 @@ describe("Service tests", () => {
         const svc = new LinqService("", prv);
         const result = await svc.createQuery<ICompany>("companies", Company).toArrayAsync();
 
-        result.forEach((c) => expect(c).to.be.instanceOf(Company));
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
     it("should handle cast via createQuery with decorator", async () => {
@@ -156,7 +156,7 @@ describe("Service tests", () => {
         const result = await svc.createQuery<ICompany>(Company).toArrayAsync();
 
         expect(prv.options.url).equal("Companies");
-        result.forEach((c) => expect(c).to.be.instanceOf(Company));
+        result.forEach(c => expect(c).to.be.instanceOf(Company));
     });
 
     it("should handle cast via createQuery without decorator", async () => {
@@ -165,7 +165,7 @@ describe("Service tests", () => {
         const result = await svc.createQuery<ICountry>(Country).toArrayAsync();
 
         expect(prv.options.url).equal("Country");
-        result.forEach((r) => expect(r).to.be.instanceOf(Country));
+        result.forEach(r => expect(r).to.be.instanceOf(Country));
     });
 
     it("should handle cast via toArrayAsync", async () => {
@@ -173,24 +173,24 @@ describe("Service tests", () => {
         const svc = new LinqService("", prv);
         const result = await svc.createQuery<ICompany>("Companies").toArrayAsync(Company);
 
-        result.forEach((r) => expect(r).to.be.instanceOf(Company));
+        result.forEach(r => expect(r).to.be.instanceOf(Company));
     });
 
     it("should handle cast for nested values", async () => {
-        const data = getCompanies().map((c) => ({ company: c }));
+        const data = getCompanies().map(c => ({ company: c }));
         const prv = new MockRequestProvider(data);
         const svc = new LinqService("", prv);
         const query = svc.createQuery<{ company: ICompany }>("Companies");
-        const result = await query.select<ICompany>((d) => d.company, Company).toArrayAsync();
+        const result = await query.select<ICompany>(d => d.company, Company).toArrayAsync();
 
-        result.forEach((r) => expect(r).to.be.instanceOf(Company));
+        result.forEach(r => expect(r).to.be.instanceOf(Company));
     });
 
     it("should pascalize member names", () => {
         const options: QueryOptions = { pascalize: true };
         const query = service.companies()
             .withOptions(options)
-            .where((c) => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== "Netflix")));
+            .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== "Netflix")));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);

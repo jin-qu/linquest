@@ -17,9 +17,9 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
 
     public request<T>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<T> {
         params = params || [];
-        const inlineCountEnabled = params.find((p) => p.key === "$" + QueryFunc.inlineCount);
+        const inlineCountEnabled = params.find(p => p.key === "$" + QueryFunc.inlineCount);
         const l1 = params.length;
-        params = params.filter((p) => p.key !== "$" + AjaxFuncs.includeResponse);
+        params = params.filter(p => p.key !== "$" + AjaxFuncs.includeResponse);
         const includeResponse = l1 !== params.length;
 
         const d = Object.assign({}, LinqService.defaultOptions);
@@ -34,7 +34,7 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
 
         const promise = this.ajaxProvider.ajax<T>(o);
 
-        return promise.then((r) => {
+        return promise.then(r => {
             let value = r.value as any;
             if (value && value.d !== void 0) {
                 value = value.d;

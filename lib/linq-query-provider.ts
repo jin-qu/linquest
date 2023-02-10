@@ -46,14 +46,14 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             }
         }
 
-        const query = this.requestProvider.request<TResult>(ps.map((p) => this.handlePart(p)), os);
+        const query = this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
         return ctor
-            ? query.then((d) => plainToClass(ctor, d))
+            ? query.then(d => plainToClass(ctor, d))
             : query;
     }
 
     public handlePart(part: IQueryPart): QueryParameter {
-        const args = part.args.map((a) =>
+        const args = part.args.map(a =>
             a.literal != null || a.exp == null
                 ? a.literal
                 : this.expToStr(
@@ -106,7 +106,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             return name;
         }
 
-        const scope = scopes && scopes.find((s) => name in s);
+        const scope = scopes && scopes.find(s => name in s);
         return (scope && this.valueToStr(scope[name])) || name;
     }
 
@@ -115,11 +115,11 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
     }
 
     public groupToStr(exp: GroupExpression, scopes: any[], parameters: string[]) {
-        return `(${exp.expressions.map((e) => this.expToStr(e, scopes, parameters)).join(", ")})`;
+        return `(${exp.expressions.map(e => this.expToStr(e, scopes, parameters)).join(", ")})`;
     }
 
     public objectToStr(exp: ObjectExpression, scopes: any[], parameters: string[]) {
-        const assigns = exp.members.map((m) => {
+        const assigns = exp.members.map(m => {
             return `${m.name} = ${this.expToStr(m.right, scopes, parameters)}`;
         }).join(", ");
 
@@ -127,7 +127,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
     }
 
     public arrayToStr(exp: ArrayExpression, scopes: any[], parameters: string[]) {
-        return `new[] {${exp.items.map((e) => this.expToStr(e, scopes, parameters)).join(", ")}}`;
+        return `new[] {${exp.items.map(e => this.expToStr(e, scopes, parameters)).join(", ")}}`;
     }
 
     public binaryToStr(exp: BinaryExpression, scopes: any[], parameters: string[]) {
@@ -174,7 +174,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             return `${left}${prmless}`;
         }
 
-        const args = exp.args.map((a) => this.expToStr(a, scopes, parameters)).join(", ");
+        const args = exp.args.map(a => this.expToStr(a, scopes, parameters)).join(", ");
         switch (func) {
             case "substr": return left + `Substring(${args})`;
             case "includes": return left + `Contains(${args})`;
