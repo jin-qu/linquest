@@ -8,6 +8,7 @@
     "downlevelIteration": true,
     "sourceMap": true,
     "strictFunctionTypes": false,
+    "experimentalDecorators": true,
     "lib": [
       "es2015",
       "DOM"

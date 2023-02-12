@@ -1,7 +1,10 @@
 import { AjaxOptions, AjaxResponse, IAjaxProvider, Value } from "jinqu";
-import { linqResource, LinqService } from "../index";
+import { linqResource, LinqService } from "..";
 
-// tslint:disable:max-classes-per-file
+export const headers = {
+    "Accept": "application/json; charset=utf-8",
+    "Content-Type": "application/json; charset=utf-8"
+};
 
 export class MockRequestProvider implements IAjaxProvider<Response> {
     public options: AjaxOptions;
@@ -12,8 +15,8 @@ export class MockRequestProvider implements IAjaxProvider<Response> {
     public ajax<T>(options: AjaxOptions): PromiseLike<Value<T> & AjaxResponse<Response>> {
         this.options = options;
         const response = { body: this.result } as Response;
-        const result = { value: { d: this.result }, response };
-        return Promise.resolve(result) as any;
+        const result = { value: { d: this.result }, response };
+        return Promise.resolve(result) as never;
     }
 }
 
@@ -21,8 +24,7 @@ export class Country implements ICountry {
     public name: string;
 }
 
-// tslint:disable-next-line:no-empty-interface
-export interface ICountry extends Country { }
+export type ICountry = Country
 
 export class City {
     public name: string;
@@ -45,12 +47,11 @@ export class Company implements ICompany {
     public addresses: Address[];
 }
 
-// tslint:disable-next-line:no-empty-interface
-export interface ICompany extends Company { }
+export type ICompany = Company
 
 export class CompanyService extends LinqService {
 
-    constructor(provider?: MockRequestProvider) {
+    constructor(provider?: MockRequestProvider) {
         super("", provider);
     }
 
@@ -61,8 +62,8 @@ export class CompanyService extends LinqService {
 
 export function getCountries(): ICountry[] {
     return [
-        { name: "Uganda" },
-        { name: "Nauru" },
+        { name: "Uganda" },
+        { name: "Nauru" },
     ];
 }
 

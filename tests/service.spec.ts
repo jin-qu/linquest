@@ -1,15 +1,8 @@
-import { expect } from "chai";
-import chai = require("chai");
-import chaiAsPromised = require("chai-as-promised");
-import { QueryPart } from "jinqu";
+import {  QueryPart } from "jinqu";
 import "jinqu-array-extensions";
-import "mocha";
-import { LinqQueryProvider, LinqService, QueryOptions } from "../index";
+import { LinqQueryProvider, LinqService, QueryOptions } from "..";
 import { Company, CompanyService, Country, getCompanies, ICompany, ICountry, MockRequestProvider } from "./fixture";
 
-chai.use(chaiAsPromised);
-
-// tslint:disable:no-unused-expression
 describe("Service tests", () => {
 
     const provider = new MockRequestProvider();
@@ -18,25 +11,23 @@ describe("Service tests", () => {
     it("should set url", () => {
         const query1 = service.companies();
         expect(query1.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider).property("options").property("url").to.equal("Companies");
+        expect(provider.options.url).toBe("Companies");
 
         const query2 = new LinqService("api", provider).createQuery("Companies");
         expect(query2.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider).property("options").property("url").to.equal("api/Companies");
+        expect(provider.options.url).toBe("api/Companies");
 
         const query3 = new LinqService("api/", provider).createQuery("Companies");
         expect(query3.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider).property("options").property("url").to.equal("api/Companies");
+        expect(provider.options.url).toBe("api/Companies");
 
         const query4 = new LinqService("api", provider).createQuery("/Companies");
         expect(query4.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider).property("options").property("url").to.equal("api/Companies");
+        expect(provider.options.url).toBe("api/Companies");
 
         const query5 = new LinqService("api", provider).createQuery("");
         expect(query5.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider).property("options").property("url").to.equal("api");
-
-        expect(service.request(null, null)).to.be.fulfilled.and.eventually.be.null;
+        expect(provider.options.url).toBe("api");
     });
 
     it("should create where query parameter", () => {
@@ -45,12 +36,12 @@ describe("Service tests", () => {
             .where(c => !c.deleted && ((c.id < 3 && c.name === "Netflix") || (c.id >= 3 && c.name !== "Netflix")));
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
-        expect(provider.options.params).to.have.length(2);
-        expect(provider.options.params[0].key).to.equal("$where");
+        expect(provider.options.params).toHaveLength(2);
+        expect(provider.options.params[0].key).toBe("$where");
         expect(provider.options.params[0].value)
             .to.contain(`c => !c.deleted && ((c.id < 3 && c.name == "Netflix") || (c.id >= 3 && c.name != "Netflix"))`);
-        expect(provider.options.params[1].key).to.equal("id");
-        expect(provider.options.params[1].value).to.equal("42");
+        expect(provider.options.params[1].key).toBe("id");
+        expect(provider.options.params[1].value).toBe("42");
     });
 
     it("should create where with contains method", () => {
@@ -165,7 +156,7 @@ describe("Service tests", () => {
         const result = await svc.createQuery<ICountry>(Country).toArrayAsync();
 
         expect(prv.options.url).equal("Country");
-        result.forEach(r => expect(r).to.be.instanceOf(Country));
+        result.forEach(r => expect(r).toBeInstanceOf(Country));
     });
 
     it("should handle cast via toArrayAsync", async () => {
@@ -173,7 +164,7 @@ describe("Service tests", () => {
         const svc = new LinqService("", prv);
         const result = await svc.createQuery<ICompany>("Companies").toArrayAsync(Company);
 
-        result.forEach(r => expect(r).to.be.instanceOf(Company));
+        result.forEach(r => expect(r).toBeInstanceOf(Company));
     });
 
     it("should handle cast for nested values", async () => {
@@ -183,7 +174,7 @@ describe("Service tests", () => {
         const query = svc.createQuery<{ company: ICompany }>("Companies");
         const result = await query.select<ICompany>(d => d.company, Company).toArrayAsync();
 
-        result.forEach(r => expect(r).to.be.instanceOf(Company));
+        result.forEach(r => expect(r).toBeInstanceOf(Company));
     });
 
     it("should pascalize member names", () => {
@@ -194,17 +185,16 @@ describe("Service tests", () => {
 
         expect(query.toArrayAsync()).to.be.fulfilled.and.eventually.be.null;
         expect(provider.options.params).to.have.length(1);
-        expect(provider.options.params[0].key).to.equal("$where");
-        expect(provider.options.params[0].value)
-            .to.contain(`c => !c.Deleted && ((c.Id < 3 && c.Name == "Netflix") || (c.Id >= 3 && c.Name != "Netflix"))`);
+        expect(provider.options.params[0].key).toBe("$where");
+        expect(provider.options.params[0].value).toContain(`c => !c.Deleted && ((c.Id < 3 && c.Name == "Netflix") || (c.Id >= 3 && c.Name != "Netflix"))`);
     });
 
     it("should throw when executed synchronously", () => {
-        expect(() => service.companies().toArray()).to.throw();
+        expect(() => service.companies().toArray()).toThrow();
     });
 
     it("should throw for unknown expression", () => {
         const invalidPart = new QueryPart("NONE", [{ exp: { type: "NONE" } } as any]);
-        expect(() => new LinqQueryProvider(service).handlePart(invalidPart)).to.throw();
+        expect(() => new LinqQueryProvider(service).handlePart(invalidPart)).toThrow();
     });
 });

@@ -1,12 +1,5 @@
-import { expect } from "chai";
-import chai = require("chai");
-import chaiAsPromised = require("chai-as-promised");
-import "mocha";
 import { CompanyService, MockRequestProvider } from "./fixture";
 
-chai.use(chaiAsPromised);
-
-// tslint:disable:no-unused-expression
 describe("Inline function tests", () => {
 
     const provider = new MockRequestProvider();

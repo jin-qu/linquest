@@ -1,18 +1,18 @@
 import {
-    AjaxFuncs, Ctor, IAjaxProvider, IRequestProvider,
-    mergeAjaxOptions, QueryFunc, QueryParameter, Result,
+    AjaxFuncs, Ctor, IAjaxProvider,
+    mergeAjaxOptions, QueryFunc, QueryParameter,
 } from "jinqu";
 import { FetchProvider } from "jinqu-fetch";
 import { getResource } from "./decorators";
 import { LinqQuery, QueryOptions } from "./linq-query";
 import { LinqQueryProvider } from "./linq-query-provider";
 
-export class LinqService<TResponse = Response> implements IRequestProvider<QueryOptions> {
+export class LinqService<TResponse = Response> {
     public static readonly defaultOptions: QueryOptions = {};
 
     constructor(
         private readonly baseAddress = "",
-        private readonly ajaxProvider: IAjaxProvider<TResponse> = new FetchProvider() as any) {
+        private readonly ajaxProvider: IAjaxProvider<TResponse> = new FetchProvider() as never) {
     }
 
     public request<T>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<T> {
@@ -35,9 +35,9 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
         const promise = this.ajaxProvider.ajax<T>(o);
 
         return promise.then(r => {
-            let value = r.value as any;
-            if (value && value.d !== void 0) {
-                value = value.d;
+            let value = r.value as unknown;
+            if (value && value["d"] !== void 0) {
+                value = value["d"];
             }
 
             if (!inlineCountEnabled && !includeResponse) {
@@ -45,11 +45,11 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
             }
 
             return {
-                inlineCount: inlineCountEnabled ? Number(r.value && (r.value as any).inlineCount) : void 0,
+                inlineCount: inlineCountEnabled ? Number(r.value && r.value["inlineCount"]) : void 0,
                 response: includeResponse ? r.response : void 0,
                 value,
             };
-        }) as any;
+        }) as never;
     }
 
     public createQuery<T>(resource: string | Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
@@ -59,14 +59,14 @@ export class LinqService<TResponse = Response> implements IRequestProvider<Query
             ctor = resource;
             resource = getResource(ctor);
             if (!resource) {
-                const r = /class (.*?)\s|\{|function (.*?)[\s|\(]/.exec(ctor.toString());
+                const r = /class (.*?)\s|\{|function (.*?)[\s|(]/.exec(ctor.toString());
                 resource = r[1] || r[2];
             }
         }
 
         const query = new LinqQueryProvider<QueryOptions, TResponse>(this)
             .createQuery<T>().withOptions({ url: resource });
-        return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, {}> : query;
+        return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, object> : query;
     }
 }
 

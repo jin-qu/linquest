@@ -37,7 +37,7 @@ To use a custom request provider, you need to implement IAjaxProvider interface 
 import { IAjaxProvider, AjaxOptions } from "jinqu";
 
 // implement the IAjaxProvider interface
-export class MyRequestProvider implements IAjaxProvider {
+export class MyAjaxProvider implements IAjaxProvider {
 
   ajax<T>(o: AjaxOptions): Promise<T> {
     // implement this
@@ -45,7 +45,7 @@ export class MyRequestProvider implements IAjaxProvider {
 }
 
 // inject provider to LinqService
-const service = new LinqService('https://my.company.service.com/', new MyRequestProvider());
+const service = new LinqService('https://my.company.service.com/', new MyAjaxProvider());
 ```
 
 ## Code Generation

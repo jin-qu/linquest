@@ -1,5 +1,5 @@
 import { plainToClass } from "class-transformer";
-import { AjaxFuncs, Ctor, IQueryPart, IQueryProvider, IRequestProvider, QueryFunc, QueryParameter } from "jinqu";
+import { AjaxFuncs, Ctor, IAjaxProvider, IQueryPart, IQueryProvider, QueryFunc, QueryParameter } from "jinqu";
 import {
     ArrayExpression, BinaryExpression, CallExpression, Expression,
     ExpressionType, FuncExpression, GroupExpression, IndexerExpression,
@@ -11,21 +11,21 @@ import { LinqQuery, QueryOptions } from "./linq-query";
 export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> implements IQueryProvider {
     public pascalize: boolean;
 
-    constructor(protected requestProvider: IRequestProvider<TOptions>) {
+    constructor(protected ajaxProvider: IAjaxProvider<TOptions>) {
     }
 
     public createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TResponse> {
         return new LinqQuery<T, TOptions, TResponse>(this, parts);
     }
 
-    public execute<T = any, TResult = PromiseLike<T[]>>(parts: IQueryPart[]): TResult {
+    public execute<T = never, TResult = PromiseLike<T[]>>(): TResult {
         throw new Error("Synchronous execution is not supported");
     }
 
-    public executeAsync<T = any, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
+    public executeAsync<T = never, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
         const ps: IQueryPart[] = [];
         const os: TOptions[] = [];
-        let ctor: Ctor<any>;
+        let ctor: Ctor<never>;
 
         for (const p of parts) {
             if (p.type === QueryFunc.toArray) {
@@ -45,8 +45,10 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
                 ps.push(p);
             }
         }
-
-        const query = this.requestProvider.request<TResult>(ps.map(p => this.handlePart(p)), os);
+        
+        os.push({ params: ps.map(p => this.handlePart(p)) });
+        var o = os.reduce();
+        const query = this.ajaxProvider.ajax<TResult>(ps.map(p => this.handlePart(p)), os);
         return ctor
             ? query.then(d => plainToClass(ctor, d))
             : query;
@@ -65,7 +67,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return { key: "$" + part.type, value: args };
     }
 
-    public expToStr(exp: Expression, scopes: any[], parameters: string[]): string {
+    public expToStr(exp: Expression, scopes: unknown[], parameters: string[]): string {
         switch (exp.type) {
             case ExpressionType.Literal:
                 return this.literalToStr(exp as LiteralExpression);
@@ -100,25 +102,25 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return this.valueToStr(exp.value);
     }
 
-    public variableToStr(exp: VariableExpression, scopes: any[], parameters: string[]) {
+    public variableToStr(exp: VariableExpression, scopes: unknown[], parameters: string[]) {
         const name = exp.name;
         if (parameters.indexOf(name) >= 0) {
             return name;
         }
 
-        const scope = scopes && scopes.find(s => name in s);
+        const scope = scopes && scopes.find(s => name in (s as object));
         return (scope && this.valueToStr(scope[name])) || name;
     }
 
-    public unaryToStr(exp: UnaryExpression, scopes: any[], parameters: string[]) {
+    public unaryToStr(exp: UnaryExpression, scopes: unknown[], parameters: string[]) {
         return `${getUnaryOp(exp.operator)}${this.expToStr(exp.target, scopes, parameters)}`;
     }
 
-    public groupToStr(exp: GroupExpression, scopes: any[], parameters: string[]) {
+    public groupToStr(exp: GroupExpression, scopes: unknown[], parameters: string[]) {
         return `(${exp.expressions.map(e => this.expToStr(e, scopes, parameters)).join(", ")})`;
     }
 
-    public objectToStr(exp: ObjectExpression, scopes: any[], parameters: string[]) {
+    public objectToStr(exp: ObjectExpression, scopes: unknown[], parameters: string[]) {
         const assigns = exp.members.map(m => {
             return `${m.name} = ${this.expToStr(m.right, scopes, parameters)}`;
         }).join(", ");
@@ -126,11 +128,11 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return `new {${assigns}}`;
     }
 
-    public arrayToStr(exp: ArrayExpression, scopes: any[], parameters: string[]) {
+    public arrayToStr(exp: ArrayExpression, scopes: unknown[], parameters: string[]) {
         return `new[] {${exp.items.map(e => this.expToStr(e, scopes, parameters)).join(", ")}}`;
     }
 
-    public binaryToStr(exp: BinaryExpression, scopes: any[], parameters: string[]) {
+    public binaryToStr(exp: BinaryExpression, scopes: unknown[], parameters: string[]) {
         const left = this.expToStr(exp.left, scopes, parameters);
         const op = getBinaryOp(exp.operator);
         const right = this.expToStr(exp.right, scopes, parameters);
@@ -138,23 +140,23 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return `${left} ${op} ${right}`;
     }
 
-    public memberToStr(exp: MemberExpression, scopes: any[], parameters: string[]) {
+    public memberToStr(exp: MemberExpression, scopes: unknown[], parameters: string[]) {
         const member = this.pascalize
             ? exp.name[0].toUpperCase() + exp.name.substr(1)
             : exp.name;
         return `${this.expToStr(exp.owner, scopes, parameters)}.${member}`;
     }
 
-    public indexerToStr(exp: IndexerExpression, scopes: any[], parameters: string[]) {
+    public indexerToStr(exp: IndexerExpression, scopes: unknown[], parameters: string[]) {
         return `${this.expToStr(exp.owner, scopes, parameters)}[${this.expToStr(exp.key, scopes, parameters)}]`;
     }
 
-    public funcToStr(exp: FuncExpression, scopes: any[], parameters: string[]) {
+    public funcToStr(exp: FuncExpression, scopes: unknown[], parameters: string[]) {
         const prm = exp.parameters.length === 1 ? exp.parameters[0] : `(${exp.parameters.join(", ")})`;
         return prm + " => " + this.expToStr(exp.body, scopes, [...exp.parameters, ...parameters]);
     }
 
-    public callToStr(exp: CallExpression, scopes: any[], parameters: string[]) {
+    public callToStr(exp: CallExpression, scopes: unknown[], parameters: string[]) {
         const callee = exp.callee as VariableExpression;
         if (callee.type !== ExpressionType.Member && callee.type !== ExpressionType.Variable) {
             throw new Error(`Invalid function call ${this.expToStr(exp.callee, scopes, parameters)}`);
@@ -184,7 +186,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return `${left}${pascalFunc}(${args})`;
     }
 
-    public ternaryToStr(exp: TernaryExpression, scopes: any[], parameters: string[]) {
+    public ternaryToStr(exp: TernaryExpression, scopes: unknown[], parameters: string[]) {
         const predicate = this.expToStr(exp.predicate, scopes, parameters);
         const whenTrue = this.expToStr(exp.whenTrue, scopes, parameters);
         const whenFalse = this.expToStr(exp.whenFalse, scopes, parameters);

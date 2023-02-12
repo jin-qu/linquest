@@ -1,7 +1,7 @@
 import { Ctor } from "jinqu";
 
 interface TypeInfo {
-    type: Ctor<any>;
+    type: Ctor<unknown>;
     resource: string;
 }
 
@@ -9,8 +9,8 @@ const metadata: TypeInfo[] = [];
 
 export function linqResource(resource: string) {
 
-    return (target: Ctor<any>) => {
-        const existing = metadata.find((m, _) => m.type === target);
+    return (target: Ctor<unknown>) => {
+        const existing = metadata.find(m => m.type === target);
         if (existing) {
             existing.resource = resource;
         } else {
@@ -19,7 +19,7 @@ export function linqResource(resource: string) {
     };
 }
 
-export function getResource(type: Ctor<any>) {
+export function getResource(type: Ctor<unknown>) {
     const existing = metadata.find(m => m.type === type);
-    return (existing && existing.resource) || null;
+    return (existing && existing.resource) || null;
 }
