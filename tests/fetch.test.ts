@@ -1,13 +1,27 @@
 import fetchMock from "jest-fetch-mock";
+import { FetchProvider } from "jinqu-fetch";
 import { LinqService } from "..";
 import { Company, CompanyService, headers } from "./fixture";
 
-const emptyResponse = { d: {} };
+fetchMock.enableMocks();
 
 describe("Fetch tests", () => {
 
+    it("should return null", async () => {
+        fetchMock.mockResponseOnce(JSON.stringify(null));
+
+        const fetchProvider = new FetchProvider();
+        const r = await fetchProvider.ajax({
+            url: "Companies"
+        });
+
+        expect(r.value).toBe(null);
+
+        fetchMock.resetMocks();
+    });
+
     it("should set url", async () => {
-        fetchMock.mockResponseOnce(JSON.stringify(emptyResponse));
+        fetchMock.mockResponseOnce("{}");
 
         const service = new LinqService();
         const query = service.createQuery<Company>("Companies")
@@ -17,7 +31,7 @@ describe("Fetch tests", () => {
             .take(10);
 
         const r = await query.toArrayAsync();
-        expect(r).toEqual(emptyResponse.d);
+        expect(r).toEqual({});
     
         const options = fetchMock.mock.lastCall;
         const request = [
@@ -62,7 +76,7 @@ describe("Fetch tests", () => {
     });
 
     it("should fail to set inline count", async () => {
-        fetchMock.mockResponseOnce(JSON.stringify(emptyResponse));
+        fetchMock.mockResponseOnce("{}");
 
         const service = new LinqService();
         const query = service.createQuery<Company>("Companies").inlineCount();
@@ -86,21 +100,21 @@ describe("Fetch tests", () => {
     });
 
     it("should include response", async () => {
-        fetchMock.mockResponseOnce(JSON.stringify(emptyResponse));
+        fetchMock.mockResponseOnce("{}");
 
         const service = new LinqService();
         const query = service.createQuery<Company>("Companies").includeResponse();
 
         const r = await query.toArrayAsync();
 
-        expect(r.value).toHaveLength(0);
+        expect(r.value).toEqual({});
         expect(r.response).not.toBeNull();
 
         fetchMock.resetMocks();
     });
 
     it("should return null", async () => {
-        fetchMock.mockResponseOnce(JSON.stringify({ d: null }));
+        fetchMock.mockResponseOnce(JSON.stringify(null));
 
         const service = new LinqService();
         const query = service.createQuery<Company>("Companies");

@@ -6,7 +6,7 @@ export const headers = {
     "Content-Type": "application/json; charset=utf-8"
 };
 
-export class MockRequestProvider implements IAjaxProvider<Response> {
+export class MockAjaxProvider implements IAjaxProvider<Response> {
     public options: AjaxOptions;
 
     constructor(private readonly result = null) {
@@ -51,7 +51,7 @@ export type ICompany = Company
 
 export class CompanyService extends LinqService {
 
-    constructor(provider?: MockRequestProvider) {
+    constructor(provider?: MockAjaxProvider) {
         super("", provider);
     }
 

@@ -1,5 +1,8 @@
 import { plainToClass } from "class-transformer";
-import { AjaxFuncs, Ctor, IAjaxProvider, IQueryPart, IQueryProvider, QueryFunc, QueryParameter } from "jinqu";
+import {
+    AjaxFuncs, Ctor, IAjaxProvider, IQueryPart, IQueryProvider,
+    QueryFunc, QueryParameter, mergeAjaxOptions
+} from "jinqu";
 import {
     ArrayExpression, BinaryExpression, CallExpression, Expression,
     ExpressionType, FuncExpression, GroupExpression, IndexerExpression,
@@ -25,14 +28,17 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
     public executeAsync<T = never, TResult = T[]>(parts: IQueryPart[]): PromiseLike<TResult> {
         const ps: IQueryPart[] = [];
         const os: TOptions[] = [];
+        let inlineCountEnabled = false;
+        let includeResponse = false;
         let ctor: Ctor<never>;
 
         for (const p of parts) {
-            if (p.type === QueryFunc.toArray) {
+            if (p.type === QueryFunc.toArray)
                 continue;
-            }
 
-            if (p.type === AjaxFuncs.options) {
+            if (p.type === AjaxFuncs.includeResponse) {
+                includeResponse = true;
+            } else if (p.type === AjaxFuncs.options) {
                 const o: TOptions = p.args[0].literal;
                 os.push(o);
 
@@ -44,14 +50,34 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             } else {
                 ps.push(p);
             }
+            if (p.type === QueryFunc.inlineCount) {
+                inlineCountEnabled = true;
+            }
         }
-        
-        os.push({ params: ps.map(p => this.handlePart(p)) });
-        var o = os.reduce();
-        const query = this.ajaxProvider.ajax<TResult>(ps.map(p => this.handlePart(p)), os);
-        return ctor
-            ? query.then(d => plainToClass(ctor, d))
-            : query;
+
+        const options = (os || []).reduce(mergeQueryOptions, {});
+        const params = ps.map((p) => this.handlePart(p));
+        options.params = (options.params || []).concat(params);
+
+        return this.ajaxProvider.ajax<T>(options)
+            .then(r => {
+                let value = r.value;
+                if (value && value["d"] != null) {
+                    value = value["d"];
+                }
+                if (ctor) {
+                    value = plainToClass(ctor, value);
+                }
+
+                if (!inlineCountEnabled && !includeResponse)
+                    return value;
+
+                return {
+                    inlineCount: inlineCountEnabled ? Number(r.value && r.value["inlineCount"]) : void 0,
+                    response: includeResponse ? r.response : void 0,
+                    value,
+                };
+            }) as never;
     }
 
     public handlePart(part: IQueryPart): QueryParameter {
@@ -104,9 +130,8 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
 
     public variableToStr(exp: VariableExpression, scopes: unknown[], parameters: string[]) {
         const name = exp.name;
-        if (parameters.indexOf(name) >= 0) {
+        if (parameters.indexOf(name) >= 0)
             return name;
-        }
 
         const scope = scopes && scopes.find(s => name in (s as object));
         return (scope && this.valueToStr(scope[name])) || name;
@@ -142,7 +167,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
 
     public memberToStr(exp: MemberExpression, scopes: unknown[], parameters: string[]) {
         const member = this.pascalize
-            ? exp.name[0].toUpperCase() + exp.name.substr(1)
+            ? exp.name[0].toUpperCase() + exp.name.substring(1)
             : exp.name;
         return `${this.expToStr(exp.owner, scopes, parameters)}.${member}`;
     }
@@ -169,9 +194,8 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         const func = callee.name;
         const prmless = parameterlessFuncs[func];
         if (prmless) {
-            if (exp.args.length) {
+            if (exp.args.length)
                 throw new Error(`No argument expected for function ${func}`);
-            }
 
             return `${left}${prmless}`;
         }
@@ -182,7 +206,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             case "includes": return left + `Contains(${args})`;
         }
 
-        const pascalFunc = func.charAt(0).toUpperCase() + func.substr(1);
+        const pascalFunc = func.charAt(0).toUpperCase() + func.substring(1);
         return `${left}${pascalFunc}(${args})`;
     }
 
@@ -195,30 +219,31 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
     }
 
     public valueToStr(value) {
-        if (value == null) {
+        if (value == null)
             return "null";
-        }
 
-        if (typeof value === "string") {
+        if (typeof value === "string")
             return `"${value.replace(/"/g, '""')}"`;
-        }
 
-        if (Object.prototype.toString.call(value) === "[object Date]") {
+        if (Object.prototype.toString.call(value) === "[object Date]")
             return `"${value.toISOString()}"`;
-        }
 
         return value;
     }
 }
 
-function getBinaryOp(op: string) {
-    if (op === "===") {
-        return "==";
-    }
+export function mergeQueryOptions(o1: QueryOptions, o2: QueryOptions): QueryOptions {
+    const o: QueryOptions = mergeAjaxOptions(o1, o2);
+    o.pascalize = o2.pascalize != null ? o2.pascalize : o1.pascalize;
+    return o;
+}
 
-    if (op === "!==") {
+function getBinaryOp(op: string) {
+    if (op === "===")
+        return "==";
+
+    if (op === "!==")
         return "!=";
-    }
 
     return op;
 }

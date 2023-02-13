@@ -1,6 +1,5 @@
 import {
-    AjaxFuncs, Ctor, IAjaxProvider,
-    mergeAjaxOptions, QueryFunc, QueryParameter,
+    Ctor, IAjaxProvider
 } from "jinqu";
 import { FetchProvider } from "jinqu-fetch";
 import { getResource } from "./decorators";
@@ -15,43 +14,6 @@ export class LinqService<TResponse = Response> {
         private readonly ajaxProvider: IAjaxProvider<TResponse> = new FetchProvider() as never) {
     }
 
-    public request<T>(params: QueryParameter[], options: QueryOptions[]): PromiseLike<T> {
-        params = params || [];
-        const inlineCountEnabled = params.find(p => p.key === "$" + QueryFunc.inlineCount);
-        const l1 = params.length;
-        params = params.filter(p => p.key !== "$" + AjaxFuncs.includeResponse);
-        const includeResponse = l1 !== params.length;
-
-        const d = Object.assign({}, LinqService.defaultOptions);
-        const o = (options || []).reduce(mergeQueryOptions, d);
-        if (this.baseAddress) {
-            if (this.baseAddress[this.baseAddress.length - 1] !== "/" && o.url && o.url[0] !== "/") {
-                o.url = "/" + o.url;
-            }
-            o.url = this.baseAddress + (o.url || "");
-        }
-        o.params = params.concat(o.params || []);
-
-        const promise = this.ajaxProvider.ajax<T>(o);
-
-        return promise.then(r => {
-            let value = r.value as unknown;
-            if (value && value["d"] !== void 0) {
-                value = value["d"];
-            }
-
-            if (!inlineCountEnabled && !includeResponse) {
-                return value;
-            }
-
-            return {
-                inlineCount: inlineCountEnabled ? Number(r.value && r.value["inlineCount"]) : void 0,
-                response: includeResponse ? r.response : void 0,
-                value,
-            };
-        }) as never;
-    }
-
     public createQuery<T>(resource: string | Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
     public createQuery<T>(resource: string, ctor: Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
     public createQuery<T>(resource: string | Ctor<T>, ctor?: Ctor<T>): LinqQuery<T, QueryOptions, TResponse> {
@@ -64,14 +26,13 @@ export class LinqService<TResponse = Response> {
             }
         }
 
-        const query = new LinqQueryProvider<QueryOptions, TResponse>(this)
-            .createQuery<T>().withOptions({ url: resource });
+        if (this.baseAddress) {
+            resource = `${this.baseAddress}${this.baseAddress.endsWith("/") ? "" : "/"}${resource}`;
+        }
+        const query = new LinqQueryProvider<QueryOptions, TResponse>(this.ajaxProvider)
+            .createQuery<T>()
+            .withOptions(LinqService.defaultOptions)
+            .withOptions({ url: resource });
         return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, object> : query;
     }
-}
-
-export function mergeQueryOptions(o1: QueryOptions, o2: QueryOptions): QueryOptions {
-    const o: QueryOptions = mergeAjaxOptions(o1, o2);
-    o.pascalize = o2.pascalize != null ? o2.pascalize : o1.pascalize;
-    return o;
 }

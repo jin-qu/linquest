@@ -1,5 +1,22 @@
 import { AjaxFuncs, AjaxOptions, AjaxResponse, Func1, IQuery, IQueryPart, PartArgument, Query, QueryPart } from "jinqu";
 
+export interface ILinqQuery<T, TExtra = object> extends IQuery<T, TExtra> {
+    include<TNav extends object>(selector: Func1<T, TNav[] | TNav>): IIncludedLinqQuery<T, TNav, TExtra>;
+}
+
+export interface IIncludedLinqQuery<TEntity, TProperty, TExtra = object> extends ILinqQuery<TEntity, TExtra> {
+    thenInclude<TNav extends object>(selector: Func1<TProperty, TNav[] | TNav>): IIncludedLinqQuery<TEntity, TNav, TExtra>;
+}
+
+export interface QueryOptions extends AjaxOptions {
+    pascalize?: boolean;
+}
+
+const LinqFuncs = {
+    include: "include",
+    thenInclude: "thenInclude",
+};
+
 export class LinqQuery<T, TOptions extends QueryOptions = QueryOptions, TResponse = Response, TExtra = object>
     extends Query<T, TExtra> {
 
@@ -35,20 +52,3 @@ export class IncludedLinqQuery<TEntity, TProperty, TOptions extends QueryOptions
         );
     }
 }
-
-export interface ILinqQuery<T, TExtra = object> extends IQuery<T, TExtra> {
-    include<TNav extends object>(selector: Func1<T, TNav[] | TNav>): IIncludedLinqQuery<T, TNav, TExtra>;
-}
-
-export interface IIncludedLinqQuery<TEntity, TProperty, TExtra = object> extends ILinqQuery<TEntity, TExtra> {
-    thenInclude<TNav extends object>(selector: Func1<TProperty, TNav[] | TNav>): IIncludedLinqQuery<TEntity, TNav, TExtra>;
-}
-
-export interface QueryOptions extends AjaxOptions {
-    pascalize?: boolean;
-}
-
-const LinqFuncs = {
-    include: "include",
-    thenInclude: "thenInclude",
-};
