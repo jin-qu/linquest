@@ -10,13 +10,12 @@
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "lib": [
-      "es2015",
+      "ES2015",
       "DOM"
     ]
   },
   "include": [
     "./index.ts",
-    "./lib/**/*.ts",
-    "./tests/**/*.ts"
+    "./lib/**/*.ts"
   ]
 }

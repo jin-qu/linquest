@@ -27,12 +27,18 @@ export class LinqService<TResponse = Response> {
         }
 
         if (this.baseAddress) {
-            resource = `${this.baseAddress}${this.baseAddress.endsWith("/") ? "" : "/"}${resource}`;
+            resource = combinePaths(this.baseAddress, resource);
         }
         const query = new LinqQueryProvider<QueryOptions, TResponse>(this.ajaxProvider)
             .createQuery<T>()
             .withOptions(LinqService.defaultOptions)
-            .withOptions({ url: resource });
+            .withOptions({ url: resource as string });
         return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, object> : query;
     }
+}
+
+export function combinePaths(p1: string, p2: string) {
+    if (!p2) return p1;
+    if (!p1) return p2;
+    return `${p1.endsWith("/") ? p1.slice(0, -1) : p1}/${p2.startsWith("/") ? p2.substring(1) : p2}`;
 }

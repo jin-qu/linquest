@@ -14,7 +14,7 @@ import { LinqQuery, QueryOptions } from "./linq-query";
 export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> implements IQueryProvider {
     public pascalize: boolean;
 
-    constructor(protected ajaxProvider: IAjaxProvider<TOptions>) {
+    constructor(protected ajaxProvider: IAjaxProvider<TResponse>) {
     }
 
     public createQuery<T>(parts?: IQueryPart[]): LinqQuery<T, TOptions, TResponse> {
@@ -62,7 +62,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return this.ajaxProvider.ajax<T>(options)
             .then(r => {
                 let value = r.value;
-                if (value && value["d"] != null) {
+                if (value && value["d"] !== void 0) {
                     value = value["d"];
                 }
                 if (ctor) {
