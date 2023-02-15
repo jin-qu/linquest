@@ -55,9 +55,9 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             }
         }
 
-        const options = (os || []).reduce(mergeQueryOptions, {});
+        const options = os.reduce(mergeQueryOptions, {});
         const params = ps.map((p) => this.handlePart(p));
-        options.params = (options.params || []).concat(params);
+        options.params = options.params.concat(params);
 
         return this.ajaxProvider.ajax<T>(options)
             .then(r => {

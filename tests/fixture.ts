@@ -1,5 +1,5 @@
 import { AjaxOptions, AjaxResponse, IAjaxProvider, Value } from "jinqu";
-import { linqResource, LinqService } from "..";
+import { linqResource, LinqService } from "../index";
 
 export const headers = {
     "Accept": "application/json; charset=utf-8",
@@ -58,13 +58,6 @@ export class CompanyService extends LinqService {
     public companies() {
         return this.createQuery<ICompany>("Companies");
     }
-}
-
-export function getCountries(): ICountry[] {
-    return [
-        { name: "Uganda" },
-        { name: "Nauru" },
-    ];
 }
 
 export function getCompanies(): ICompany[] {

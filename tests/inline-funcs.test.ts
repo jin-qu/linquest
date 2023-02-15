@@ -16,7 +16,7 @@ describe("Inline function tests", () => {
     });
 
     it("should be able to call Substring", () => {
-        const query = service.companies().where(c => c.name.substring(1, 3) === "etf");
+        const query = service.companies().where(c => c.name.substr(1, 3) === "etf");
 
         expect(query.toArrayAsync()).resolves.toBeNull();
         const params = provider.options.params;

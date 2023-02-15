@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {  QueryPart } from "jinqu";
 import "jinqu-array-extensions";
-import { LinqQueryProvider, LinqService, QueryOptions } from "..";
+import { LinqQueryProvider, LinqService, QueryOptions } from "../index";
 import { Company, CompanyService, Country, getCompanies, ICompany, ICountry, MockAjaxProvider } from "./fixture";
 
 describe("Service tests", () => {

@@ -1,11 +1,15 @@
 import fetchMock from "jest-fetch-mock";
 import { FetchProvider } from "jinqu-fetch";
-import { LinqService } from "..";
+import { LinqService } from "../index";
 import { Company, CompanyService, headers } from "./fixture";
 
 fetchMock.enableMocks();
 
 describe("Fetch tests", () => {
+
+    afterEach(() => {
+        fetchMock.resetMocks();
+    });
 
     it("should return null", async () => {
         fetchMock.mockResponseOnce(JSON.stringify(null));
@@ -16,8 +20,6 @@ describe("Fetch tests", () => {
         });
 
         expect(r.value).toBe(null);
-
-        fetchMock.resetMocks();
     });
 
     it("should set url", async () => {
@@ -43,8 +45,6 @@ describe("Fetch tests", () => {
             }
         ];
         expect(options).toEqual(request);
-    
-        fetchMock.resetMocks();
     });
 
     it("should set inline count", async () => {
@@ -71,8 +71,6 @@ describe("Fetch tests", () => {
 
         expect(r.value).toHaveLength(0);
         expect(r.inlineCount).toBe(42);
-
-        fetchMock.resetMocks();
     });
 
     it("should fail to set inline count", async () => {
@@ -95,8 +93,6 @@ describe("Fetch tests", () => {
         expect(options).toEqual(request);
 
         expect(r.inlineCount).toBe(NaN);
-
-        fetchMock.resetMocks();
     });
 
     it("should include response", async () => {
@@ -109,8 +105,6 @@ describe("Fetch tests", () => {
 
         expect(r.value).toEqual({});
         expect(r.response).not.toBeNull();
-
-        fetchMock.resetMocks();
     });
 
     it("should return null", async () => {
@@ -121,8 +115,6 @@ describe("Fetch tests", () => {
 
         const r = await query.toArrayAsync();
         expect(r).toBeNull();
-
-        fetchMock.resetMocks();
     });
 
     it("should throw when timeout elapsed", async () => {
@@ -139,7 +131,5 @@ describe("Fetch tests", () => {
         catch (e) {
             expect(e).toHaveProperty("message", "Request timed out");
         }
-
-        fetchMock.resetMocks();
     });
 });
