@@ -1,12 +1,15 @@
 # linquest - Remote Linq implementation with Jinqu infrastructure
 
-[![Build Status](https://travis-ci.org/jin-qu/linquest.svg?branch=master)](https://travis-ci.org/jin-qu/linquest)
-[![Coverage Status](https://coveralls.io/repos/github/jin-qu/linquest/badge.svg?branch=master)](https://coveralls.io/github/jin-qu/linquest?branch=master)
-[![npm version](https://badge.fury.io/js/linquest.svg)](https://badge.fury.io/js/linquest)
+[![Build and Test](https://github.com/jin-qu/linquest/actions/workflows/build.yml/badge.svg)](https://github.com/jin-qu/linquest/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/jin-qu/linquest/graph/badge.svg?token=k1OsNYGW3j)](https://codecov.io/gh/jin-qu/linquest)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/b36d26a0f95443bdacd6786bc17e9202)](https://app.codacy.com/gh/jin-qu/linquest/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 <a href="https://snyk.io/test/npm/linquest"><img src="https://snyk.io/test/npm/linquest/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/npm/linquest" style="max-width:100%;"></a>
-[![GitHub issues](https://img.shields.io/github/issues/jin-qu/linquest.svg)](https://github.com/jin-qu/linquest/issues)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/jin-qu/linquest/master/LICENSE)
 
+[![npm version](https://img.shields.io/npm/v/linquest)](https://www.npmjs.com/package/linquest)
+[![npm downloads](https://img.shields.io/npm/dm/linquest.svg)](https://www.npmjs.com/package/linquest)
+
+[![GitHub issues](https://img.shields.io/github/issues/jin-qu/linquest.svg)](https://github.com/jin-qu/linquest/issues)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/jin-qu/linquest/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/jin-qu/linquest.svg?style=social&label=Star)](https://github.com/jin-qu/linquest)
 [![GitHub forks](https://img.shields.io/github/forks/jin-qu/linquest.svg?style=social&label=Fork)](https://github.com/jin-qu/linquest)
 
@@ -33,7 +36,7 @@ Linquest uses [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 
 To use a custom request provider, you need to implement IAjaxProvider interface from [jinqu](https://github.com/jin-qu/jinqu/)
 
-```javascript
+```typescript
 import { IAjaxProvider, AjaxOptions } from "jinqu";
 
 // implement the IAjaxProvider interface
@@ -52,7 +55,7 @@ const service = new LinqService('https://my.company.service.com/', new MyAjaxPro
 
 With code generation from a metadata (like [Swagger](https://github.com/swagger-api) or [OpenAPI](https://github.com/OAI/OpenAPI-Specification/), you can really simplify the usage.
 
-```javascript
+```typescript
 // generated code
 export interface Company {
     id: number;
@@ -73,7 +76,7 @@ export class CompanyService extends LinqService {
 
 // and you can use it like this
 const service = new CompanyService();
-const query = service.companies().where(c => c.name !== "Netflix"));
+const query = service.companies().where(c => c.name !== "Netflix");
 const result = await query.toArrayAsync();
 ```
 
