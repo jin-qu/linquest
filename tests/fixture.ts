@@ -32,7 +32,6 @@ export class City {
 
 @linqResource("Addresses")
 export class Address {
-    public id: number;
     public text: string;
     public city: City;
 }

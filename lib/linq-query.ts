@@ -25,7 +25,7 @@ export class LinqQuery<T, TOptions extends QueryOptions = QueryOptions, TRespons
     }
 
     public setParameter(key: string, value: unknown): LinqQuery<T, TOptions, TResponse, TExtra> {
-        return this.withOptions({ params: [{ key, value }] } as never);
+        return this.withOptions({ $params: [{ key, value }] } as TOptions);
     }
 
     public includeResponse(): LinqQuery<T, TOptions, TResponse, TExtra & AjaxResponse<TResponse>> {

@@ -10,16 +10,46 @@ describe("Inline function tests", () => {
         const query = service.companies().where(c => Math.floor(c.id) === 1);
 
         expect(query.toArrayAsync()).resolves.toBeNull();
-        const params = provider.options.params;
+        const params = provider.options.$params;
         expect(params).toHaveLength(1);
         expect(params![0]).toHaveProperty("value", `c => Math.Floor(c.id) == 1`);
     });
 
     it("should be able to call Substring", () => {
+        const query = service.companies().where(c => c.name.substring(1, 4) === "etf");
+
+        expect(query.toArrayAsync()).resolves.toBeNull();
+        const params = provider.options.$params;
+        expect(params).toHaveLength(1);
+        expect(params![0]).toHaveProperty("value", `c => c.name.Substring(1, 3) == "etf"`);
+    });
+
+    it("should be able to call Substring with 1 parameter", () => {
+        const query = service.companies().where(c => c.name.substring(1) === "etf");
+
+        expect(query.toArrayAsync()).resolves.toBeNull();
+        const params = provider.options.$params;
+        expect(params).toHaveLength(1);
+        expect(params![0]).toHaveProperty("value", `c => c.name.Substring(1) == "etf"`);
+    });
+
+    it("should be able to call Substring with expression", () => {
+        const query = service.companies()
+            .withOptions({pascalize: true})
+            .where(c => c.name.substring(c.name.length - 2) === "etf");
+
+        expect(query.toArrayAsync()).resolves.toBeNull();
+        const params = provider.options.$params;
+        expect(params).toHaveLength(1);
+        expect(params![0]).toHaveProperty("value", `c => c.Name.Substring(c.Name.Length - 2) == "etf"`);
+    });
+
+    it("should be able to call Substring via substr", () => {
+        // noinspection JSDeprecatedSymbols
         const query = service.companies().where(c => c.name.substr(1, 3) === "etf");
 
         expect(query.toArrayAsync()).resolves.toBeNull();
-        const params = provider.options.params;
+        const params = provider.options.$params;
         expect(params).toHaveLength(1);
         expect(params![0]).toHaveProperty("value", `c => c.name.Substring(1, 3) == "etf"`);
     });
@@ -28,7 +58,7 @@ describe("Inline function tests", () => {
         const query = service.companies().where(c => c.name.includes("flix"));
 
         expect(query.toArrayAsync()).resolves.toBeNull();
-        const params = provider.options.params;
+        const params = provider.options.$params;
         expect(params).toHaveLength(1);
         expect(params![0]).toHaveProperty("value", `c => c.name.Contains("flix")`);
     });
@@ -37,7 +67,7 @@ describe("Inline function tests", () => {
         const query = service.companies().where("c => c.toString()");
 
         expect(query.toArrayAsync()).resolves.toBeNull();
-        const params = provider.options.params;
+        const params = provider.options.$params;
         expect(params).toHaveLength(1);
         expect(params![0]).toHaveProperty("value", `c => c.ToString()`);
     });
@@ -46,7 +76,7 @@ describe("Inline function tests", () => {
         const query = service.companies().select(c => c.name).select("toLowerCase()");
 
         expect(query.toArrayAsync()).resolves.toBeNull();
-        const params = provider.options.params;
+        const params = provider.options.$params;
         expect(params).toHaveLength(2);
         expect(params![0]).toHaveProperty("value", `c => c.name`);
         expect(params![1]).toHaveProperty("value", `ToLower()`);

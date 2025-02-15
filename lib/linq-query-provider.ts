@@ -1,4 +1,4 @@
-import { plainToClass } from "class-transformer";
+import { plainToInstance } from "class-transformer";
 import {
     AjaxFuncs, Ctor, IAjaxProvider, IQueryPart, IQueryProvider,
     QueryFunc, QueryParameter, mergeAjaxOptions
@@ -39,14 +39,14 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             if (p.type === AjaxFuncs.includeResponse) {
                 includeResponse = true;
             } else if (p.type === AjaxFuncs.options) {
-                const o: TOptions = p.args[0].literal;
+                const o: TOptions = p.args[0].literal as TOptions;
                 os.push(o);
 
                 if (o && o.pascalize != null) {
                     this.pascalize = o.pascalize;
                 }
             } else if (p.type === QueryFunc.cast) {
-                ctor = p.args[0].literal;
+                ctor = p.args[0].literal as Ctor<never>;
             } else {
                 ps.push(p);
             }
@@ -57,7 +57,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
 
         const options = os.reduce(mergeQueryOptions, {});
         const params = ps.map((p) => this.handlePart(p));
-        options.params = options.params.concat(params);
+        options.$params = options.$params.concat(params);
 
         return this.ajaxProvider.ajax<T>(options)
             .then(r => {
@@ -66,7 +66,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
                     value = value["d"];
                 }
                 if (ctor) {
-                    value = plainToClass(ctor, value);
+                    value = plainToInstance(ctor, value);
                 }
 
                 if (!inlineCountEnabled && !includeResponse)
@@ -200,10 +200,23 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
             return `${left}${prmless}`;
         }
 
-        const args = exp.args.map(a => this.expToStr(a, scopes, parameters)).join(", ");
+        const args = exp.args.map(a => this.expToStr(a, scopes, parameters));
         switch (func) {
-            case "substr": return left + `Substring(${args})`;
-            case "includes": return left + `Contains(${args})`;
+            case "substr": return left + `Substring(${args.join(", ")})`;
+            case "substring": {
+                const arg1 = args[0];
+                if (args.length === 1)
+                    return left + `Substring(${arg1})`;
+
+                const narg1 = +arg1;
+                const arg2 = args[1];
+                const narg2 = +arg2;
+                if (!isNaN(narg1) && !isNaN(narg2))
+                    return left + `Substring(${arg1}, ${narg2-narg1})`;
+
+                return left + `Substring(${arg1}, ${arg2}-${arg1})`;
+            }
+            case "includes": return left + `Contains(${args.join(", ")})`;
         }
 
         const pascalFunc = func.charAt(0).toUpperCase() + func.substring(1);
@@ -218,7 +231,7 @@ export class LinqQueryProvider<TOptions extends QueryOptions, TResponse> impleme
         return `${predicate} ? ${whenTrue} : ${whenFalse}`;
     }
 
-    public valueToStr(value) {
+    public valueToStr(value: any) {
         if (value == null)
             return "null";
 

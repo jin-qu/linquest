@@ -16,7 +16,7 @@ describe("Fetch tests", () => {
 
         const fetchProvider = new FetchProvider();
         const r = await fetchProvider.ajax({
-            url: "Companies"
+            $url: "Companies"
         });
 
         expect(r.value).toBe(null);
@@ -121,7 +121,7 @@ describe("Fetch tests", () => {
         fetchMock.mockImplementationOnce(() => new Promise(r => setTimeout(() => r(null as never), 10)));
         
         const service = new CompanyService();
-        const query = service.companies().withOptions({ timeout: 1 });
+        const query = service.companies().withOptions({ $timeout: 1 });
 
         try {
             await query.toArrayAsync();

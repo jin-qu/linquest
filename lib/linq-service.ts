@@ -15,7 +15,9 @@ export class LinqService<TResponse = Response> {
     }
 
     public createQuery<T>(resource: string | Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
+    // eslint-disable-next-line no-dupe-class-members
     public createQuery<T>(resource: string, ctor: Ctor<T>): LinqQuery<T, QueryOptions, TResponse>;
+    // eslint-disable-next-line no-dupe-class-members
     public createQuery<T>(resource: string | Ctor<T>, ctor?: Ctor<T>): LinqQuery<T, QueryOptions, TResponse> {
         if (typeof resource === "function") {
             ctor = resource;
@@ -30,8 +32,8 @@ export class LinqService<TResponse = Response> {
         const query = new LinqQueryProvider<QueryOptions, TResponse>(this.ajaxProvider)
             .createQuery<T>()
             .withOptions(LinqService.defaultOptions)
-            .withOptions({ url: resource as string });
-        return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse, object> : query;
+            .withOptions({ $url: resource as string });
+        return ctor ? query.cast(ctor) as LinqQuery<T, QueryOptions, TResponse> : query;
     }
 }
 
