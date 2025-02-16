@@ -39,7 +39,6 @@ describe("Fetch tests", () => {
         const request = [
             "Companies?$where=o%20%3D%3E%20o.id%20%3E%205&$orderBy=o%20%3D%3E%20o.id&$skip=10&$take=10",
             {
-                body: undefined,
                 method: "GET",
                 headers
             }

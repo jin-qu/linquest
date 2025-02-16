@@ -1,6 +1,6 @@
 {
   "name": "linquest",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Remote Linq implementation with Jinqu infrastructure",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "jinqu": "^2.0.0",
-    "jinqu-fetch": "^2.0.1",
+    "jinqu-fetch": "^2.0.4",
     "jokenizer": "^1.0.0"
   }
 }
