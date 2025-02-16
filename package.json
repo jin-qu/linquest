@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "jinqu": "^2.0.0",
-    "jinqu-fetch": "^2.0.0",
+    "jinqu-fetch": "^2.0.1",
     "jokenizer": "^1.0.0"
   }
 }

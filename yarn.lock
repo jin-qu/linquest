@@ -2492,10 +2492,10 @@ jinqu-array-extensions@^2.0.0:
   dependencies:
     jinqu "^2.0.0"
 
-jinqu-fetch@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/jinqu-fetch/-/jinqu-fetch-2.0.0.tgz"
-  integrity sha512-DZvkXkMTNP5GTI5RkGsH08Ap2zO3Rq2YUeF+N82BTIBFBeeHIOpauKurNNnTKlrujpybYo2NTY3NyseGqI0OWQ==
+jinqu-fetch@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/jinqu-fetch/-/jinqu-fetch-2.0.1.tgz"
+  integrity sha512-iUlCJFKOVYeZDTx8Sal9j7Nekf5t3NTLPiFdXj9+yX0xCzOKZiDbOfuZBG3T+ilhvvGzljdgAQ6vLsLgCO4wDw==
   dependencies:
     jinqu "^2.0.0"
 
