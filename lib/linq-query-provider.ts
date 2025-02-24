@@ -2,7 +2,7 @@ import { plainToInstance } from "class-transformer";
 import {
     AjaxFuncs, Ctor, IAjaxProvider, IQueryPart, IQueryProvider,
     QueryFunc, QueryParameter, mergeAjaxOptions
-} from "jinqu";
+} from "@jin-qu/jinqu";
 import {
     ArrayExpression, BinaryExpression, CallExpression, Expression,
     ExpressionType, FuncExpression, GroupExpression, IndexerExpression,

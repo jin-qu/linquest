@@ -1,4 +1,7 @@
-import { AjaxFuncs, AjaxOptions, AjaxResponse, Func1, IQuery, IQueryPart, PartArgument, Query, QueryPart } from "jinqu";
+import {
+    AjaxFuncs, AjaxOptions, AjaxResponse, Func1, IQuery,
+    IQueryPart, PartArgument, Query, QueryPart
+} from "@jin-qu/jinqu";
 
 export interface ILinqQuery<T, TExtra = object> extends IQuery<T, TExtra> {
     include<TNav extends object>(selector: Func1<T, TNav[] | TNav>): IIncludedLinqQuery<T, TNav, TExtra>;

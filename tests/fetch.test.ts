@@ -1,5 +1,5 @@
 import fetchMock from "jest-fetch-mock";
-import { FetchProvider } from "jinqu-fetch";
+import { FetchProvider } from "@jin-qu/fetch";
 import { LinqService } from "../index";
 import { Company, CompanyService, headers } from "./fixture";
 

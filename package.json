@@ -1,6 +1,6 @@
 {
-  "name": "linquest",
-  "version": "2.0.1",
+  "name": "@jin-qu/linquest",
+  "version": "2.0.0",
   "description": "Remote Linq implementation with Jinqu infrastructure",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
     "codecov": "^3.8.3",
-    "jinqu-array-extensions": "^2.0.0",
+    "@jin-qu/array-extensions": "^2.0.0",
     "eslint": "9.20.0",
     "jest": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
@@ -44,8 +44,8 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "jinqu": "^2.0.0",
-    "jinqu-fetch": "^2.0.4",
+    "@jin-qu/jinqu": "^2.0.0",
+    "@jin-qu/fetch": "^2.0.0",
     "jokenizer": "^1.0.0"
   }
 }

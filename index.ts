@@ -1,4 +1,4 @@
-import "jinqu";
+import "@jin-qu/jinqu";
 
 export * from "./lib/linq-query";
 export * from "./lib/linq-query-provider";

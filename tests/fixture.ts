@@ -1,4 +1,4 @@
-import { AjaxOptions, AjaxResponse, IAjaxProvider, Value } from "jinqu";
+import { AjaxOptions, AjaxResponse, IAjaxProvider, Value } from "@jin-qu/jinqu";
 import { linqResource, LinqService } from "../index";
 
 export const headers = {

@@ -3,10 +3,10 @@
 [![Build and Test](https://github.com/jin-qu/linquest/actions/workflows/build.yml/badge.svg)](https://github.com/jin-qu/linquest/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/jin-qu/linquest/graph/badge.svg?token=k1OsNYGW3j)](https://codecov.io/gh/jin-qu/linquest)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b36d26a0f95443bdacd6786bc17e9202)](https://app.codacy.com/gh/jin-qu/linquest/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-<a href="https://snyk.io/test/npm/linquest"><img src="https://snyk.io/test/npm/linquest/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/npm/linquest" style="max-width:100%;"></a>
+<a href="https://snyk.io/test/npm/@jin-qu/linquest"><img src="https://snyk.io/test/npm/@jin-qu/linquest/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/npm/@jin-qu/linquest" style="max-width:100%;"></a>
 
-[![npm version](https://img.shields.io/npm/v/linquest)](https://www.npmjs.com/package/linquest)
-[![npm downloads](https://img.shields.io/npm/dm/linquest.svg)](https://www.npmjs.com/package/linquest)
+[![npm version](https://img.shields.io/npm/v/@jin-qu/linquest)](https://www.npmjs.com/package/@jin-qu/linquest)
+[![npm downloads](https://img.shields.io/npm/dm/@jin-qu/linquest.svg)](https://www.npmjs.com/package/@jin-qu/linquest)
 
 [![GitHub issues](https://img.shields.io/github/issues/jin-qu/linquest.svg)](https://github.com/jin-qu/linquest/issues)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/jin-qu/linquest/main/LICENSE)
