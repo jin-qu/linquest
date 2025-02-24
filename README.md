@@ -17,7 +17,7 @@ Written completely in TypeScript.
 
 ## Installation
 
-> npm i linquest
+> npm i @jin-qu/linquest
 
 ## Let's See
 
